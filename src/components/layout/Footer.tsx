@@ -8,10 +8,10 @@ export const Footer: React.FC = () => {
 
   const socialLinks = [
     { name: 'GitHub', href: 'https://github.com/EngrPrenz', icon: <GithubLogo size={20} /> },
-    { name: 'LinkedIn', href: 'https://linkedin.com/in/princepsalmvivaz', icon: <LinkedinLogo size={20} /> },
-    { name: 'Facebook', href: 'https://facebook.com/princepsalmvivaz', icon: <FacebookLogo size={20} /> },
+    { name: 'LinkedIn', href: 'https://www.linkedin.com/in/prince-psalm-vivaz-8972b7189', icon: <LinkedinLogo size={20} /> },
+    { name: 'Facebook', href: 'https://www.facebook.com/Hugasmunaplato', icon: <FacebookLogo size={20} /> },
     { name: 'Discord', href: 'https://discord.com', icon: <DiscordLogo size={20} /> },
-    { name: 'Email', href: 'mailto:contact@prenz.dev', icon: <EnvelopeSimple size={20} /> },
+    { name: 'Email', href: 'mailto:vivazprince@gmail.com', icon: <EnvelopeSimple size={20} /> },
   ]
 
   return (

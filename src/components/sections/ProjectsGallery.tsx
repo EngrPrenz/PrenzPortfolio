@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { projectsData, ProjectCategory } from '@/data/projects'
+import { projectsData, ProjectCategory, Project } from '@/data/projects'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { ProjectCard } from '@/components/ui/ProjectCard'
+import { ProjectModal } from '@/components/ui/ProjectModal'
 import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
 
 export const ProjectsGallery: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<ProjectCategory>('All')
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
   const categories: ProjectCategory[] = ['All', 'Full Stack', 'QA & Testing', 'AR & Systems']
 
@@ -23,7 +25,7 @@ export const ProjectsGallery: React.FC = () => {
             <div>
               <SectionHeading
                 title="Project Archive"
-                subtitle="Explore past systems and upcoming initiatives across web, AR, and QA testing."
+                subtitle="Explore past systems and upcoming initiatives. Click any card to inspect full screenshot galleries and technical specifications."
                 eyebrow="SYSTEMS &amp; LABS"
                 className="mb-0"
               />
@@ -62,11 +64,23 @@ export const ProjectsGallery: React.FC = () => {
         <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           <AnimatePresence mode="popLayout">
             {filteredProjects.map((project, idx) => (
-              <ProjectCard key={project.id} project={project} variant="gallery" index={idx} />
+              <ProjectCard
+                key={project.id}
+                project={project}
+                variant="gallery"
+                index={idx}
+                onSelect={(p) => setSelectedProject(p)}
+              />
             ))}
           </AnimatePresence>
         </motion.div>
       </div>
+
+      {/* Project Detail & Screenshot Carousel Modal */}
+      <ProjectModal
+        project={selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
     </section>
   )
 }

@@ -27,17 +27,17 @@ export const Hero: React.FC = () => {
         <RevealOnScroll delay={0.1}>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--accent-neon-glow)] text-[var(--accent-neon)] border border-[var(--border-hover)] text-xs font-mono mb-6">
             <Sparkle size={14} weight="fill" className="animate-pulse" />
-            <span>Computer Engineering Student &amp; Builder</span>
           </div>
         </RevealOnScroll>
 
         {/* Main Display Headline */}
         <RevealOnScroll delay={0.2}>
           <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter text-[var(--text-primary)] leading-[1.05]">
-            Hello, I&apos;m{' '}
+            {'< '}
             <span className="text-[var(--accent-neon)] font-mono drop-shadow-[0_0_20px_var(--accent-neon-glow)]">
               Prenz
             </span>
+            {' / >'}
           </h1>
         </RevealOnScroll>
 
