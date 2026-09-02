@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --color-neon-green: #00ff88;
+  --color-neon-dim: #00cc6a;
+  --color-neon-dark: #008f4c;
+}
+
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --bg-tertiary: #181818;
+  --bg-card: rgba(17, 17, 17, 0.75);
+  --text-primary: #f0f0f0;
+  --text-secondary: #909090;
+  --text-tertiary: #5a5a5a;
+  --border-primary: #222222;
+  --border-hover: rgba(0, 255, 136, 0.4);
+  --accent-neon: #00ff88;
+  --accent-neon-hover: #00cc6a;
+  --accent-neon-glow: rgba(0, 255, 136, 0.18);
+  --card-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.5);
+  --badge-bg: rgba(0, 255, 136, 0.08);
+  --badge-text: #00ff88;
+  --badge-border: rgba(0, 255, 136, 0.25);
+  --nav-bg: rgba(10, 10, 10, 0.85);
+  --particle-color: rgba(0, 255, 136, 0.35);
+}
+
+html:not(.dark) {
+  --bg-primary: #fafafa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f3f4f6;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-tertiary: #9ca3af;
+  --border-primary: #e5e7eb;
+  --border-hover: rgba(0, 160, 80, 0.45);
+  --accent-neon: #00a855;
+  --accent-neon-hover: #008f47;
+  --accent-neon-glow: rgba(0, 168, 85, 0.15);
+  --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+  --badge-bg: rgba(0, 168, 85, 0.1);
+  --badge-text: #008f47;
+  --badge-border: rgba(0, 168, 85, 0.3);
+  --nav-bg: rgba(250, 250, 250, 0.88);
+  --particle-color: rgba(0, 168, 85, 0.25);
+}
+
+/* Global Reset & Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Monospace font utility */
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-neon);
+}
+
+/* Glowing Neon Utility Classes */
+.neon-glow {
+  box-shadow: 0 0 20px var(--accent-neon-glow);
+}
+
+.neon-glow-lg {
+  box-shadow: 0 0 35px var(--accent-neon-glow), 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+.neon-text-glow {
+  text-shadow: 0 0 12px var(--accent-neon-glow);
+}
+
+.glass-card {
+  background-color: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-primary);
+}
+
+.glass-card:hover {
+  border-color: var(--border-hover);
+}
+
+/* Code block highlight styling */
+.code-block {
+  background-color: #0d0d0d;
+  border: 1px solid #222222;
+  font-family: var(--font-mono);
+}
+
+html:not(.dark) .code-block {
+  background-color: #f8fafc;
+  border-color: #e2e8f0;
+}
