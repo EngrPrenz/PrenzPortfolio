@@ -51,7 +51,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
 
   const screenshots = project.screenshots && project.screenshots.length > 0
     ? project.screenshots
-    : ['/projects/ursac-hub-full.png']
+    : ['/projects/ursachub/1.png']
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev < screenshots.length - 1 ? prev + 1 : 0))

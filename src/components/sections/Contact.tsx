@@ -227,7 +227,7 @@ export const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-[var(--text-primary)]">
-                      Curriculum Vitae
+                      Resume / CV
                     </h4>
                     <p className="text-xs text-[var(--text-secondary)]">
                       Updated for 2026 engineering positions

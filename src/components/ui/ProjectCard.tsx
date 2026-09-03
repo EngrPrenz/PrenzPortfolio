@@ -19,7 +19,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   onSelect,
 }) => {
   const shouldReduceMotion = useReducedMotion()
-  const primaryScreenshot = project.screenshots?.[0] || '/projects/ursac-hub-full.png'
+  const primaryScreenshot = project.screenshots?.[0] || '/projects/ursachub/1.png'
 
   if (variant === 'featured') {
     return (
