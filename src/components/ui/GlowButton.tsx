@@ -36,7 +36,7 @@ export const GlowButton: React.FC<GlowButtonProps> = ({
       'bg-transparent text-[var(--accent-neon)] border border-[var(--accent-neon)] hover:bg-[var(--accent-neon)] hover:text-[#0a0a0a] hover:shadow-[0_0_20px_rgba(0,255,136,0.25)]',
   }[variant]
 
-  const commonClasses = `inline-flex items-center justify-center gap-2.5 rounded-lg transition-all duration-200 cursor-pointer select-none whitespace-nowrap active:scale-[0.98] ${sizeClasses} ${variantClasses} ${className}`
+  const commonClasses = `inline-flex items-center justify-center gap-2.5 rounded-lg transition-all duration-200 cursor-pointer select-none whitespace-nowrap active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:pointer-events-none ${sizeClasses} ${variantClasses} ${className}`
 
   if (href) {
     return (

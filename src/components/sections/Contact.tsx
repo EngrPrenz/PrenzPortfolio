@@ -8,6 +8,8 @@ import {
   FileText,
   PaperPlaneTilt,
   CheckCircle,
+  WarningCircle,
+  CircleNotch,
   Copy,
 } from '@phosphor-icons/react'
 import { SectionHeading } from '@/components/ui/SectionHeading'
@@ -16,16 +18,58 @@ import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
 
 export const Contact: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' })
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [copiedEmail, setCopiedEmail] = useState(false)
 
   const emailAddress = 'vivazprince@gmail.com'
+  const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || ''
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.name || !formData.email || !formData.message) return
-    // Static UI feedback as specified in plan
-    setIsSubmitted(true)
+
+    if (!accessKey) {
+      setErrorMessage(
+        'Web3Forms access key is not set. Please add VITE_WEB3FORMS_ACCESS_KEY in your .env file, or email vivazprince@gmail.com directly.'
+      )
+      return
+    }
+
+    setIsSubmitting(true)
+    setErrorMessage(null)
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: accessKey,
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          from_name: formData.name,
+          subject: `Portfolio Contact from ${formData.name}`,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setIsSubmitted(true)
+        setFormData({ name: '', email: '', message: '' })
+      } else {
+        setErrorMessage(data.message || 'Failed to send message. Please try again or email directly.')
+      }
+    } catch {
+      setErrorMessage('Network error occurred. Please try again or reach out directly via email.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleCopyEmail = () => {
@@ -92,6 +136,7 @@ export const Contact: React.FC = () => {
                       <button
                         onClick={() => {
                           setIsSubmitted(false)
+                          setErrorMessage(null)
                           setFormData({ name: '', email: '', message: '' })
                         }}
                         className="text-xs font-mono text-[var(--accent-neon)] hover:underline cursor-pointer"
@@ -114,7 +159,10 @@ export const Contact: React.FC = () => {
                         id="name"
                         required
                         value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        onChange={(e) => {
+                          if (errorMessage) setErrorMessage(null)
+                          setFormData({ ...formData, name: e.target.value })
+                        }}
                         placeholder="Ada Lovelace"
                         className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] text-sm focus:outline-none focus:border-[var(--accent-neon)] focus:ring-1 focus:ring-[var(--accent-neon)] transition-all min-h-[44px]"
                       />
@@ -132,7 +180,10 @@ export const Contact: React.FC = () => {
                         id="email"
                         required
                         value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        onChange={(e) => {
+                          if (errorMessage) setErrorMessage(null)
+                          setFormData({ ...formData, email: e.target.value })
+                        }}
                         placeholder="ada@example.com"
                         className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] text-sm focus:outline-none focus:border-[var(--accent-neon)] focus:ring-1 focus:ring-[var(--accent-neon)] transition-all min-h-[44px]"
                       />
@@ -150,20 +201,37 @@ export const Contact: React.FC = () => {
                         required
                         rows={4}
                         value={formData.message}
-                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        onChange={(e) => {
+                          if (errorMessage) setErrorMessage(null)
+                          setFormData({ ...formData, message: e.target.value })
+                        }}
                         placeholder="Tell me about your project, engineering role, or collaboration idea..."
                         className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] text-sm focus:outline-none focus:border-[var(--accent-neon)] focus:ring-1 focus:ring-[var(--accent-neon)] transition-all resize-none min-h-[120px]"
                       />
                     </div>
+
+                    {errorMessage && (
+                      <div className="p-3.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-start gap-2.5">
+                        <WarningCircle size={18} className="shrink-0 mt-0.5" />
+                        <span className="leading-relaxed">{errorMessage}</span>
+                      </div>
+                    )}
 
                     <GlowButton
                       type="submit"
                       variant="solid"
                       size="lg"
                       className="w-full"
-                      icon={<PaperPlaneTilt size={18} weight="bold" />}
+                      disabled={isSubmitting}
+                      icon={
+                        isSubmitting ? (
+                          <CircleNotch size={18} className="animate-spin" />
+                        ) : (
+                          <PaperPlaneTilt size={18} weight="bold" />
+                        )
+                      }
                     >
-                      Send Message
+                      {isSubmitting ? 'Transmitting...' : 'Send Message'}
                     </GlowButton>
                   </form>
                 )}
