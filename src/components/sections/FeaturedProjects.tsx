@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
-import { projectsData, Project } from '@/data/projects'
+import { Project } from '@/data/projects'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { ProjectCard } from '@/components/ui/ProjectCard'
 import { ProjectModal } from '@/components/ui/ProjectModal'
 import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
+import { useProjects } from '@/hooks/useProjects'
 
 export const FeaturedProjects: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const featuredProjects = projectsData.filter((p) => p.featured)
+  const { projects } = useProjects()
+  const featuredProjects = projects.filter((p) => p.featured)
 
   return (
     <section id="featured" className="py-24 sm:py-32 px-4 sm:px-6 lg:px-8 relative bg-[var(--bg-secondary)]/30">

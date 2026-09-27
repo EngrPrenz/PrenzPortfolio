@@ -31,24 +31,24 @@
 }
 
 html:not(.dark) {
-  --bg-primary: #fafafa;
+  --bg-primary: #f6f8f6;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f3f4f6;
-  --bg-card: rgba(255, 255, 255, 0.85);
-  --text-primary: #111827;
-  --text-secondary: #4b5563;
-  --text-tertiary: #9ca3af;
-  --border-primary: #e5e7eb;
-  --border-hover: rgba(0, 160, 80, 0.45);
-  --accent-neon: #00a855;
-  --accent-neon-hover: #008f47;
-  --accent-neon-glow: rgba(0, 168, 85, 0.15);
-  --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
-  --badge-bg: rgba(0, 168, 85, 0.1);
-  --badge-text: #008f47;
-  --badge-border: rgba(0, 168, 85, 0.3);
-  --nav-bg: rgba(250, 250, 250, 0.88);
-  --particle-color: rgba(0, 168, 85, 0.25);
+  --bg-tertiary: #edf2ee;
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --text-primary: #0e1f15;
+  --text-secondary: #3f5347;
+  --text-tertiary: #788e80;
+  --border-primary: #dce5df;
+  --border-hover: rgba(5, 150, 105, 0.4);
+  --accent-neon: #059669;
+  --accent-neon-hover: #047857;
+  --accent-neon-glow: rgba(5, 150, 105, 0.15);
+  --card-shadow: 0 8px 24px -4px rgba(14, 31, 21, 0.06), 0 2px 6px -1px rgba(14, 31, 21, 0.04);
+  --badge-bg: rgba(5, 150, 105, 0.1);
+  --badge-text: #047857;
+  --badge-border: rgba(5, 150, 105, 0.28);
+  --nav-bg: rgba(246, 248, 246, 0.88);
+  --particle-color: rgba(5, 150, 105, 0.2);
 }
 
 /* Global Reset & Base Styles */
@@ -120,6 +120,6 @@ body {
 }
 
 html:not(.dark) .code-block {
-  background-color: #f8fafc;
-  border-color: #e2e8f0;
+  background-color: #f1f5f2;
+  border-color: #dce5df;
 }

@@ -1,4 +1,5 @@
 import React from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { useSmoothScroll } from '@/hooks/useSmoothScroll'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
@@ -8,9 +9,12 @@ import { FeaturedProjects } from '@/components/sections/FeaturedProjects'
 import { ProjectsGallery } from '@/components/sections/ProjectsGallery'
 import { Skills } from '@/components/sections/Skills'
 import { Contact } from '@/components/sections/Contact'
+import { AdminDashboard } from '@/pages/admin/AdminDashboard'
+import { AdminLogin } from '@/components/admin/AdminLogin'
+import { ProtectedRoute } from '@/components/admin/ProtectedRoute'
 
-export const App: React.FC = () => {
-  // Initialize Lenis smooth scroll with touch & reduced-motion guards
+const PortfolioHome: React.FC = () => {
+  // Initialize Lenis smooth scroll on home page
   useSmoothScroll()
 
   return (
@@ -31,6 +35,24 @@ export const App: React.FC = () => {
       {/* Footer */}
       <Footer />
     </div>
+  )
+}
+
+export const App: React.FC = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<PortfolioHome />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
 

@@ -10,9 +10,9 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className = ''
   const configs = {
     live: {
       label: 'Live Deployment',
-      dotColor: 'bg-[#00ff88]',
-      ringColor: 'ring-[#00ff88]/40',
-      badgeBg: 'bg-[#00ff88]/10 text-[#00ff88] border-[#00ff88]/30 dark:text-[#00ff88] light:text-[#00944b]',
+      dotColor: 'bg-[var(--accent-neon)]',
+      ringColor: 'ring-[var(--accent-neon)]/40',
+      badgeBg: 'bg-[var(--badge-bg)] text-[var(--badge-text)] border-[var(--badge-border)]',
     },
     development: {
       label: 'In Development',

@@ -29,11 +29,11 @@ export const GlowButton: React.FC<GlowButtonProps> = ({
 
   const variantClasses = {
     solid:
-      'bg-[#00ff88] text-[#0a0a0a] font-semibold hover:bg-[#00cc6a] hover:shadow-[0_0_25px_rgba(0,255,136,0.35)] dark:bg-[#00ff88] dark:text-[#050505] dark:hover:bg-[#00e67a]',
+      'bg-[var(--accent-neon)] text-white font-semibold hover:bg-[var(--accent-neon-hover)] hover:shadow-[0_0_20px_var(--accent-neon-glow)] dark:bg-[#00ff88] dark:text-[#050505] dark:hover:bg-[#00e67a] dark:hover:shadow-[0_0_25px_rgba(0,255,136,0.35)]',
     ghost:
       'bg-transparent text-[var(--text-primary)] border border-[var(--border-primary)] hover:border-[var(--accent-neon)] hover:text-[var(--accent-neon)] hover:bg-[var(--accent-neon-glow)]',
     outline:
-      'bg-transparent text-[var(--accent-neon)] border border-[var(--accent-neon)] hover:bg-[var(--accent-neon)] hover:text-[#0a0a0a] hover:shadow-[0_0_20px_rgba(0,255,136,0.25)]',
+      'bg-transparent text-[var(--accent-neon)] border border-[var(--accent-neon)] hover:bg-[var(--accent-neon)] hover:text-white dark:hover:text-[#0a0a0a] hover:shadow-[0_0_20px_var(--accent-neon-glow)]',
   }[variant]
 
   const commonClasses = `inline-flex items-center justify-center gap-2.5 rounded-lg transition-all duration-200 cursor-pointer select-none whitespace-nowrap active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:pointer-events-none ${sizeClasses} ${variantClasses} ${className}`

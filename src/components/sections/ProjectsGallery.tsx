@@ -1,21 +1,23 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { projectsData, ProjectCategory, Project } from '@/data/projects'
+import { ProjectCategory, Project } from '@/data/projects'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { ProjectCard } from '@/components/ui/ProjectCard'
 import { ProjectModal } from '@/components/ui/ProjectModal'
 import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
+import { useProjects } from '@/hooks/useProjects'
 
 export const ProjectsGallery: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<ProjectCategory>('All')
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const { projects } = useProjects()
 
   const categories: ProjectCategory[] = ['All', 'Full Stack', 'QA & Testing', 'AR & Systems']
 
   const filteredProjects =
     activeFilter === 'All'
-      ? projectsData
-      : projectsData.filter((p) => p.category === activeFilter)
+      ? projects
+      : projects.filter((p) => p.category === activeFilter)
 
   return (
     <section id="projects" className="py-24 sm:py-32 px-4 sm:px-6 lg:px-8 relative">
@@ -26,7 +28,7 @@ export const ProjectsGallery: React.FC = () => {
               <SectionHeading
                 title="Project Archive"
                 subtitle="Explore past systems and upcoming initiatives. Click any card to inspect full screenshot galleries and technical specifications."
-                eyebrow="SYSTEMS &amp; LABS"
+                eyebrow="SYSTEMS & LABS"
                 className="mb-0"
               />
             </div>
