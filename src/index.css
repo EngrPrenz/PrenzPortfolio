@@ -123,3 +123,27 @@ html:not(.dark) .code-block {
   background-color: #f1f5f2;
   border-color: #dce5df;
 }
+
+/* Light-mode contrast adjustments for bright single-tone tech logos (WCAG 1.4.11 >= 3:1) */
+html:not(.dark) .tech-logo-react path[fill] {
+  fill: #087ea4;
+}
+
+html:not(.dark) .tech-logo-react path[stroke] {
+  stroke: #087ea4;
+}
+
+html:not(.dark) .tech-logo-tailwind path {
+  fill: #0284c7;
+}
+
+html:not(.dark) .tech-logo-node path {
+  fill: #3c873a;
+}
+
+/* Forced Colors Mode fallback for monochrome tech marks */
+@media (forced-colors: active) {
+  .tech-logo-mono path {
+    fill: CanvasText;
+  }
+}

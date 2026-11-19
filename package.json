@@ -9,8 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@flagpost/sdk": "file:../FFS/packages/sdk",
     "@phosphor-icons/react": "^2.1.7",
     "@supabase/supabase-js": "^2.117.2",
+    "developer-icons": "^7.1.0",
     "lenis": "^1.1.20",
     "motion": "^12.4.7",
     "react": "^19.0.0",
