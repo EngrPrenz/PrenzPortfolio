@@ -15,16 +15,21 @@ import {
   DeviceMobile,
   Guitar,
   Motorcycle,
+  Images,
+  ArrowsOutSimple,
 } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { StatsCard } from '@/components/ui/StatsCard'
 import { GlowButton } from '@/components/ui/GlowButton'
 import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
+import { HobbyModal } from '@/components/ui/HobbyModal'
 import { useHobbies } from '@/hooks/useHobbies'
+import { Hobby, getHobbyImages } from '@/types/hobby'
 
 export const About: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'bio' | 'hobbies'>('bio')
+  const [selectedHobby, setSelectedHobby] = useState<Hobby | null>(null)
   const { hobbies } = useHobbies()
 
   const visibleHobbies = hobbies.filter((h) => h.featured !== false)
@@ -227,68 +232,124 @@ export const About: React.FC = () => {
 
               {/* Hobbies Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {visibleHobbies.map((hobby, idx) => (
-                  <motion.div
-                    key={hobby.id}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.08 }}
-                    className="group relative bg-[var(--bg-secondary)] hover:bg-[var(--bg-card)] border border-[var(--border-primary)] hover:border-[var(--accent-neon)]/50 rounded-2xl p-5 sm:p-6 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-lg"
-                  >
-                    {/* Background subtle glow */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-neon-glow)] blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                {visibleHobbies.map((hobby, idx) => {
+                  const hobbyImages = getHobbyImages(hobby)
+                  const coverImage = hobbyImages[0]
 
-                    <div>
-                      {/* Top Header with Icon & Category */}
-                      <div className="flex items-center justify-between gap-3 mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-primary)] group-hover:border-[var(--accent-neon)]/40 flex items-center justify-center transition-colors">
-                            {renderHobbyIcon(hobby.icon)}
-                          </div>
-                          <div>
-                            <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--accent-neon)] font-semibold block">
-                              {hobby.category}
-                            </span>
-                            <h3 className="font-mono font-bold text-base sm:text-lg text-[var(--text-primary)]">
-                              {hobby.title}
-                            </h3>
+                  return (
+                    <motion.article
+                      key={hobby.id}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.08 }}
+                      className="group relative bg-[var(--bg-secondary)] hover:bg-[var(--bg-card)] border border-[var(--border-primary)] hover:border-[var(--accent-neon)]/50 rounded-2xl p-5 sm:p-6 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-lg focus-within:ring-2 focus-within:ring-[var(--accent-neon)] focus-within:ring-offset-2 focus-within:ring-offset-[var(--bg-primary)]"
+                    >
+                      {/* Background subtle glow */}
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-neon-glow)] blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                      <div>
+                        {/* Top Header with Icon & Category */}
+                        <div className="flex items-center justify-between gap-3 mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-primary)] group-hover:border-[var(--accent-neon)]/40 flex items-center justify-center transition-colors shrink-0">
+                              {renderHobbyIcon(hobby.icon)}
+                            </div>
+                            <div>
+                              <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--accent-neon)] font-semibold block">
+                                {hobby.category}
+                              </span>
+                              <h3 className="font-mono font-bold text-base sm:text-lg text-[var(--text-primary)] group-hover:text-[var(--accent-neon)] transition-colors">
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedHobby(hobby)}
+                                  className="text-left after:absolute after:inset-0 after:z-10 after:content-[''] focus:outline-none cursor-pointer"
+                                >
+                                  {hobby.title}
+                                </button>
+                              </h3>
+                            </div>
                           </div>
                         </div>
+
+                        {/* Description Preview */}
+                        <p
+                          className={`text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed line-clamp-3 ${
+                            coverImage ? 'mb-5' : ''
+                          }`}
+                        >
+                          {hobby.description}
+                        </p>
                       </div>
 
-                      {/* Description */}
-                      <p
-                        className={`text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed ${
-                          hobby.imageUrl ? 'mb-5' : ''
-                        }`}
-                      >
-                        {hobby.description}
-                      </p>
-                    </div>
+                      {/* Showcase Cover Image or Read More Cue */}
+                      {coverImage ? (
+                        <div className="pt-3 border-t border-[var(--border-primary)]/60">
+                          <div className="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden border border-[var(--border-primary)] bg-[var(--bg-primary)]">
+                            <img
+                              src={coverImage}
+                              alt={hobby.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                              loading="lazy"
+                              onError={(e) => {
+                                ;(e.target as HTMLElement).style.display = 'none'
+                              }}
+                            />
 
-                    {/* Showcase Image */}
-                    {hobby.imageUrl && (
-                      <div className="pt-3 border-t border-[var(--border-primary)]/60">
-                        <div className="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden border border-[var(--border-primary)] bg-[var(--bg-primary)]">
-                          <img
-                            src={hobby.imageUrl}
-                            alt={hobby.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-                            loading="lazy"
-                            onError={(e) => {
-                              ;(e.target as HTMLElement).style.display = 'none'
-                            }}
-                          />
+                            {/* Hover Overlay Prompt */}
+                            <div className="pointer-events-none absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center p-4">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--accent-neon)] text-[#0a0a0a] text-xs font-mono font-bold shadow-lg">
+                                {hobbyImages.length > 1 ? (
+                                  <>
+                                    <Images size={15} weight="bold" aria-hidden="true" />
+                                    View Gallery ({hobbyImages.length})
+                                  </>
+                                ) : (
+                                  <>
+                                    <ArrowsOutSimple size={15} weight="bold" aria-hidden="true" />
+                                    View Full View
+                                  </>
+                                )}
+                              </span>
+                            </div>
+
+                            {/* Always-Visible Counter / View Cue Pill */}
+                            <div className="pointer-events-none absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-md text-[11px] font-mono font-semibold text-white border border-white/15 flex items-center gap-1.5">
+                              {hobbyImages.length > 1 ? (
+                                <>
+                                  <Images size={13} className="text-[var(--accent-neon)]" aria-hidden="true" />
+                                  <span>{hobbyImages.length} Photos</span>
+                                </>
+                              ) : (
+                                <>
+                                  <ArrowsOutSimple size={13} className="text-[var(--accent-neon)]" aria-hidden="true" />
+                                  <span>Tap to view</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
+                      ) : (
+                        <div className="flex justify-end pt-3 mt-3 border-t border-[var(--border-primary)]/60">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono font-semibold text-[var(--accent-neon)]">
+                            Tap to read more
+                            <ArrowRight size={13} aria-hidden="true" />
+                          </span>
+                        </div>
+                      )}
+                    </motion.article>
+                  )
+                })}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      <HobbyModal
+        hobby={selectedHobby}
+        icon={selectedHobby ? renderHobbyIcon(selectedHobby.icon) : null}
+        onClose={() => setSelectedHobby(null)}
+      />
     </section>
   )
 }

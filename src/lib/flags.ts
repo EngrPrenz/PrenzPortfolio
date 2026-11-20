@@ -13,12 +13,6 @@ export const vexlo = new VexloClient({
     (isDev ? 'http://localhost:4000' : ''),
   pollIntervalMs: isDev ? 3000 : 30000,
   bootstrap: {
-    'show-vexlo-showcase': {
-      key: 'show-vexlo-showcase',
-      enabled: true,
-      rolloutPercentage: 100,
-      rules: [],
-    },
     'skill-tech-logos': {
       key: 'skill-tech-logos',
       enabled: true,

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { Hobby } from '@/types/hobby'
+import { Hobby, getHobbyImages } from '@/types/hobby'
 import { storageService } from '@/services/storageService'
 import {
   X,
   UploadSimple,
   Check,
   WarningCircle,
+  Trash,
+  Star,
 } from '@phosphor-icons/react'
 
 interface HobbyModalFormProps {
@@ -55,7 +57,8 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
   const [category, setCategory] = useState('Hardware & Systems')
   const [icon, setIcon] = useState('Cpu')
   const [description, setDescription] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
+  const [images, setImages] = useState<string[]>([])
+  const [newImageUrl, setNewImageUrl] = useState('')
   const [displayOrder, setDisplayOrder] = useState(1)
   const [featured, setFeatured] = useState(true)
 
@@ -74,7 +77,7 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
       setCategory(hobby.category || 'Hardware & Systems')
       setIcon(hobby.icon || 'Cpu')
       setDescription(hobby.description || '')
-      setImageUrl(hobby.imageUrl || '')
+      setImages(getHobbyImages(hobby))
       setDisplayOrder(hobby.displayOrder ?? 1)
       setFeatured(hobby.featured ?? true)
       setTags(hobby.tags || [])
@@ -84,11 +87,12 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
       setCategory('Hardware & Systems')
       setIcon('Cpu')
       setDescription('')
-      setImageUrl('')
+      setImages([])
       setDisplayOrder(1)
       setFeatured(true)
       setTags([])
     }
+    setNewImageUrl('')
     setFormError(null)
     setUploadError(null)
   }, [hobby, isOpen])
@@ -106,20 +110,52 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
     setTags(tags.filter((_, i) => i !== index))
   }
 
+  const handleAddImageUrl = () => {
+    const trimmed = newImageUrl.trim()
+    if (!trimmed) return
+    setImages((prev) => getHobbyImages({ images: [...prev, trimmed] }))
+    setNewImageUrl('')
+  }
+
+  const handleRemoveImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const handleSetCover = (index: number) => {
+    setImages((prev) => {
+      if (index <= 0 || index >= prev.length) return prev
+      const chosen = prev[index]
+      return [chosen, ...prev.filter((_, i) => i !== index)]
+    })
+  }
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = e.target.files
+    if (!files || files.length === 0) return
 
     setIsUploading(true)
     setUploadError(null)
 
-    const res = await storageService.uploadAsset(file, 'hobbies')
-    if (res.url) {
-      setImageUrl(res.url)
-    } else if (res.error) {
-      setUploadError(res.error.message)
+    try {
+      const results = await Promise.all(
+        Array.from(files).map((file) => storageService.uploadAsset(file, 'hobbies'))
+      )
+
+      const successfulUrls: string[] = []
+      results.forEach((res) => {
+        if (res.url) successfulUrls.push(res.url)
+        else if (res.error) setUploadError(res.error.message)
+      })
+
+      if (successfulUrls.length > 0) {
+        setImages((prev) => getHobbyImages({ images: [...prev, ...successfulUrls] }))
+      }
+    } catch (err: any) {
+      setUploadError(err.message || 'Upload failed')
+    } finally {
+      setIsUploading(false)
+      e.target.value = ''
     }
-    setIsUploading(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -140,7 +176,8 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
       icon: icon.trim() || 'Sparkle',
       description: description.trim(),
       tags,
-      imageUrl: imageUrl.trim() || undefined,
+      images,
+      imageUrl: images[0] || undefined,
       displayOrder: Number(displayOrder) || 0,
       featured,
     }
@@ -318,11 +355,16 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
             </div>
           </div>
 
-          {/* Image & Display Order */}
+          {/* Images & Display Order */}
           <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-primary)] space-y-3">
-            <label className="block text-xs font-mono font-semibold text-[var(--text-primary)] uppercase">
-              Showcase Photo (Optional)
-            </label>
+            <div>
+              <label className="block text-xs font-mono font-semibold text-[var(--text-primary)] uppercase">
+                Showcase Photos ({images.length})
+              </label>
+              <p className="text-[11px] text-[var(--text-tertiary)]">
+                Add local paths (0 bucket space) like /hobbies/guitar-1.jpg or upload files. First photo is the card cover.
+              </p>
+            </div>
             {uploadError && (
               <div className="p-2 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
                 {uploadError}
@@ -330,12 +372,13 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
             )}
 
             <div className="flex flex-col sm:flex-row gap-3 items-center">
-              <label className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-[var(--bg-secondary)] border border-dashed border-[var(--border-primary)] hover:border-[var(--accent-neon)] text-xs font-mono text-[var(--text-primary)] cursor-pointer">
+              <label className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-[var(--bg-secondary)] border border-dashed border-[var(--border-primary)] hover:border-[var(--accent-neon)] text-xs font-mono text-[var(--text-primary)] cursor-pointer shrink-0">
                 <UploadSimple size={16} className="text-[var(--accent-neon)]" />
-                <span>{isUploading ? 'Uploading...' : 'Upload Image'}</span>
+                <span>{isUploading ? 'Uploading...' : 'Upload Image(s)'}</span>
                 <input
                   type="file"
                   accept="image/*"
+                  multiple
                   onChange={handleFileUpload}
                   disabled={isUploading}
                   className="hidden"
@@ -344,25 +387,67 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
 
               <span className="text-xs font-mono text-[var(--text-tertiary)]">or URL</span>
 
-              <input
-                type="text"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="/hobbies/guitar.jpg or https://..."
-                className="flex-1 w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg py-1.5 px-3 text-xs text-[var(--text-primary)] font-mono focus:border-[var(--accent-neon)] focus:outline-none"
-              />
-            </div>
-
-            {imageUrl && (
-              <div className="relative w-32 aspect-video rounded-lg overflow-hidden border border-[var(--border-primary)] mt-2">
-                <img src={imageUrl} alt="Hobby Preview" className="w-full h-full object-cover" />
+              <div className="flex-1 flex gap-2 w-full">
+                <input
+                  type="text"
+                  value={newImageUrl}
+                  onChange={(e) => setNewImageUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleAddImageUrl()
+                    }
+                  }}
+                  placeholder="/hobbies/guitar.jpg or https://..."
+                  className="flex-1 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg py-1.5 px-3 text-xs text-[var(--text-primary)] font-mono focus:border-[var(--accent-neon)] focus:outline-none"
+                />
                 <button
                   type="button"
-                  onClick={() => setImageUrl('')}
-                  className="absolute top-1 right-1 p-1 rounded bg-black/70 text-red-400 hover:text-white"
+                  onClick={handleAddImageUrl}
+                  className="px-3 py-1.5 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg text-xs font-mono transition-colors cursor-pointer shrink-0"
                 >
-                  <X size={12} />
+                  Add URL
                 </button>
+              </div>
+            </div>
+
+            {images.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2">
+                {images.map((url, i) => (
+                  <div
+                    key={`${url}-${i}`}
+                    className="relative group rounded-xl overflow-hidden border border-[var(--border-primary)] bg-[var(--bg-secondary)] aspect-video"
+                  >
+                    <img
+                      src={url}
+                      alt={`Hobby photo ${i + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      {i > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => handleSetCover(i)}
+                          title="Set as Cover"
+                          className="p-1.5 rounded-lg bg-amber-500/85 text-black hover:bg-amber-400 transition-colors cursor-pointer"
+                        >
+                          <Star size={14} weight="fill" />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(i)}
+                        title="Remove Photo"
+                        className="p-1.5 rounded-lg bg-red-500/85 text-white hover:bg-red-600 transition-colors cursor-pointer"
+                      >
+                        <Trash size={14} />
+                      </button>
+                    </div>
+                    <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/75 text-[9px] font-mono text-white">
+                      {i === 0 ? '#1 Cover' : `#${i + 1}`}
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
 

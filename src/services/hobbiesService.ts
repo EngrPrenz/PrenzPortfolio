@@ -1,46 +1,68 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
-import { Hobby } from '@/types/hobby'
+import { Hobby, getHobbyImages, serializeHobbyImages } from '@/types/hobby'
 import { hobbiesData } from '@/data/hobbies'
 
 const LOCAL_STORAGE_KEY = 'prenz_portfolio_hobbies_cache'
 
+const normalizeHobby = (hobby: Hobby): Hobby => {
+  const images = getHobbyImages(hobby)
+  return {
+    ...hobby,
+    images,
+    imageUrl: images[0],
+  }
+}
+
 // Helper to convert database row (snake_case) to Hobby interface (camelCase)
-const mapDbToHobby = (row: any): Hobby => ({
-  id: row.id,
-  title: row.title,
-  category: row.category || 'General',
-  icon: row.icon || 'Sparkle',
-  description: row.description || '',
-  tags: Array.isArray(row.tags) ? row.tags : [],
-  imageUrl: row.image_url || undefined,
-  featured: row.featured !== undefined ? Boolean(row.featured) : true,
-  displayOrder: row.display_order ?? 0,
-})
+const mapDbToHobby = (row: any): Hobby => {
+  const images = getHobbyImages({
+    images: Array.isArray(row.images) ? row.images : undefined,
+    imageUrl: row.image_url || undefined,
+  })
+  return {
+    id: row.id,
+    title: row.title,
+    category: row.category || 'General',
+    icon: row.icon || 'Sparkle',
+    description: row.description || '',
+    tags: Array.isArray(row.tags) ? row.tags : [],
+    imageUrl: images[0],
+    images,
+    featured: row.featured !== undefined ? Boolean(row.featured) : true,
+    displayOrder: row.display_order ?? 0,
+  }
+}
 
 // Helper to convert Hobby to database row
-const mapHobbyToDb = (hobby: Hobby): any => ({
-  id: hobby.id,
-  title: hobby.title,
-  category: hobby.category,
-  icon: hobby.icon,
-  description: hobby.description,
-  tags: hobby.tags,
-  image_url: hobby.imageUrl || null,
-  featured: hobby.featured ?? true,
-  display_order: hobby.displayOrder ?? 0,
-  updated_at: new Date().toISOString(),
-})
+const mapHobbyToDb = (hobby: Hobby): any => {
+  const images = getHobbyImages(hobby)
+  return {
+    id: hobby.id,
+    title: hobby.title,
+    category: hobby.category,
+    icon: hobby.icon,
+    description: hobby.description,
+    tags: hobby.tags,
+    image_url: serializeHobbyImages(images),
+    featured: hobby.featured ?? true,
+    display_order: hobby.displayOrder ?? 0,
+    updated_at: new Date().toISOString(),
+  }
+}
 
 export const getLocalCachedHobbies = (): Hobby[] => {
   try {
     const cached = localStorage.getItem(LOCAL_STORAGE_KEY)
     if (cached) {
-      return JSON.parse(cached)
+      const parsed = JSON.parse(cached)
+      if (Array.isArray(parsed)) {
+        return parsed.map(normalizeHobby)
+      }
     }
   } catch (err) {
     console.warn('Failed reading hobbies from localStorage', err)
   }
-  return [...hobbiesData]
+  return hobbiesData.map(normalizeHobby)
 }
 
 export const setLocalCachedHobbies = (hobbies: Hobby[]): void => {
@@ -82,15 +104,16 @@ export const hobbiesService = {
   },
 
   async createHobby(hobby: Hobby): Promise<{ data: Hobby | null; error: Error | null }> {
+    const normalized = normalizeHobby(hobby)
     if (!isSupabaseConfigured()) {
       const current = getLocalCachedHobbies()
-      const updated = [...current, hobby]
+      const updated = [...current, normalized]
       setLocalCachedHobbies(updated)
-      return { data: hobby, error: null }
+      return { data: normalized, error: null }
     }
 
     const payload = {
-      ...mapHobbyToDb(hobby),
+      ...mapHobbyToDb(normalized),
       created_at: new Date().toISOString(),
     }
 
@@ -111,13 +134,22 @@ export const hobbiesService = {
   },
 
   async updateHobby(id: string, updates: Partial<Hobby>): Promise<{ data: Hobby | null; error: Error | null }> {
+    const hasImageUpdates = updates.images !== undefined || updates.imageUrl !== undefined
+    const nextImages = hasImageUpdates
+      ? getHobbyImages({ images: updates.images, imageUrl: updates.imageUrl })
+      : undefined
+
     if (!isSupabaseConfigured()) {
       const current = getLocalCachedHobbies()
       const index = current.findIndex(h => h.id === id)
       if (index === -1) {
         return { data: null, error: new Error('Hobby not found') }
       }
-      const updatedItem = { ...current[index], ...updates }
+      const updatedItem = normalizeHobby({
+        ...current[index],
+        ...updates,
+        ...(nextImages !== undefined ? { images: nextImages, imageUrl: nextImages[0] } : {}),
+      })
       current[index] = updatedItem
       setLocalCachedHobbies([...current])
       return { data: updatedItem, error: null }
@@ -129,7 +161,7 @@ export const hobbiesService = {
     if (updates.icon !== undefined) dbPayload.icon = updates.icon
     if (updates.description !== undefined) dbPayload.description = updates.description
     if (updates.tags !== undefined) dbPayload.tags = updates.tags
-    if (updates.imageUrl !== undefined) dbPayload.image_url = updates.imageUrl || null
+    if (nextImages !== undefined) dbPayload.image_url = serializeHobbyImages(nextImages)
     if (updates.featured !== undefined) dbPayload.featured = updates.featured
     if (updates.displayOrder !== undefined) dbPayload.display_order = updates.displayOrder
     dbPayload.updated_at = new Date().toISOString()
@@ -169,19 +201,20 @@ export const hobbiesService = {
   },
 
   async seedInitialHobbies(): Promise<{ count: number; error: Error | null }> {
+    const normalized = hobbiesData.map(normalizeHobby)
     if (!isSupabaseConfigured()) {
-      setLocalCachedHobbies([...hobbiesData])
-      return { count: hobbiesData.length, error: null }
+      setLocalCachedHobbies(normalized)
+      return { count: normalized.length, error: null }
     }
 
-    const rows = hobbiesData.map(mapHobbyToDb)
+    const rows = normalized.map(mapHobbyToDb)
     const { error } = await supabase.from('hobbies').upsert(rows, { onConflict: 'id' })
 
     if (error) {
       return { count: 0, error: new Error(error.message) }
     }
 
-    setLocalCachedHobbies([...hobbiesData])
+    setLocalCachedHobbies(normalized)
     return { count: rows.length, error: null }
   },
 }

@@ -147,3 +147,49 @@ html:not(.dark) .tech-logo-node path {
     fill: CanvasText;
   }
 }
+
+/* Native Modal Dialog scroll containment & top-layer styling */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background-color: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.hobby-dialog:not([open]) {
+  display: none;
+}
+
+.hobby-dialog[open] {
+  display: flex;
+}
+
+/* Hobby Modal horizontal scroll-snap carousel */
+.hobby-carousel-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  touch-action: manipulation;
+  scrollbar-width: none;
+}
+
+.hobby-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hobby-carousel-track {
+    scroll-behavior: smooth;
+  }
+}
+
+.hobby-carousel-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+}

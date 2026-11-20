@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext'
 import { projectsService } from '@/services/projectsService'
 import { hobbiesService } from '@/services/hobbiesService'
 import { Project } from '@/data/projects'
-import { Hobby } from '@/types/hobby'
+import { Hobby, getHobbyImages } from '@/types/hobby'
 import { ProjectModalForm } from '@/components/admin/ProjectModalForm'
 import { HobbyModalForm } from '@/components/admin/HobbyModalForm'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -714,7 +714,12 @@ export const AdminDashboard: React.FC = () => {
 
                     {/* Bottom Status bar */}
                     <div className="flex items-center justify-between pt-3 border-t border-[var(--border-primary)] text-[11px] font-mono text-[var(--text-tertiary)]">
-                      <span>Order #{h.displayOrder ?? 0}</span>
+                      <span>
+                        Order #{h.displayOrder ?? 0} · {(() => {
+                          const photoCount = getHobbyImages(h).length
+                          return `${photoCount} ${photoCount === 1 ? 'photo' : 'photos'}`
+                        })()}
+                      </span>
                       <button
                         onClick={() => handleToggleHobbyFeatured(h)}
                         className={`cursor-pointer transition-colors ${
