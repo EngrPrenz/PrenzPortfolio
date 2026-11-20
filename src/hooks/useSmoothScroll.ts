@@ -23,14 +23,32 @@ export const useSmoothScroll = () => {
       infinite: false,
     })
 
-    function raf(time: number) {
-      lenis.raf(time)
-      requestAnimationFrame(raf)
+    let openModalCount = 0
+    const handleModalOpen = () => {
+      openModalCount += 1
+      lenis.stop()
+    }
+    const handleModalClose = () => {
+      openModalCount = Math.max(0, openModalCount - 1)
+      if (openModalCount === 0) {
+        lenis.start()
+      }
     }
 
-    const rafId = requestAnimationFrame(raf)
+    window.addEventListener('prenz:modal-open', handleModalOpen)
+    window.addEventListener('prenz:modal-close', handleModalClose)
+
+    let rafId = 0
+    function raf(time: number) {
+      lenis.raf(time)
+      rafId = requestAnimationFrame(raf)
+    }
+
+    rafId = requestAnimationFrame(raf)
 
     return () => {
+      window.removeEventListener('prenz:modal-open', handleModalOpen)
+      window.removeEventListener('prenz:modal-close', handleModalClose)
       cancelAnimationFrame(rafId)
       lenis.destroy()
     }

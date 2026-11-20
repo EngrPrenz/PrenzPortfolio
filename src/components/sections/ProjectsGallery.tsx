@@ -23,8 +23,8 @@ export const ProjectsGallery: React.FC = () => {
     <section id="projects" className="py-24 sm:py-32 px-4 sm:px-6 lg:px-8 relative">
       <div className="max-w-6xl mx-auto">
         <RevealOnScroll>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-            <div>
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+            <div className="min-w-0">
               <SectionHeading
                 title="Project Archive"
                 subtitle="Explore past systems and upcoming initiatives. Click any card to inspect full screenshot galleries and technical specifications."
@@ -34,14 +34,14 @@ export const ProjectsGallery: React.FC = () => {
             </div>
 
             {/* Category Filter Tabs */}
-            <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] self-start md:self-auto">
+            <div className="flex flex-nowrap items-center gap-1.5 p-1.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] self-start lg:self-auto shrink-0 max-w-full overflow-x-auto">
               {categories.map((category) => {
                 const isActive = activeFilter === category
                 return (
                   <button
                     key={category}
                     onClick={() => setActiveFilter(category)}
-                    className={`relative px-4 py-2 rounded-lg text-xs font-mono font-medium transition-all duration-200 cursor-pointer min-h-[38px] select-none ${
+                    className={`relative px-3 sm:px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all duration-200 cursor-pointer min-h-[38px] select-none whitespace-nowrap shrink-0 ${
                       isActive
                         ? 'text-[#0a0a0a] font-bold dark:text-[#050505]'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
