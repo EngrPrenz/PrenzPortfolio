@@ -34,6 +34,8 @@ jobs:
         run: npm run build
         env:
           VITE_WEB3FORMS_ACCESS_KEY: ${{ secrets.VITE_WEB3FORMS_ACCESS_KEY }}
+          VITE_VEXLO_URL: ${{ secrets.VITE_VEXLO_URL }}
+          VITE_VEXLO_API_KEY: ${{ secrets.VITE_VEXLO_API_KEY }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

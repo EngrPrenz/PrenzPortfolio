@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useSmoothScroll } from '@/hooks/useSmoothScroll'
 import { Navbar } from '@/components/layout/Navbar'
@@ -12,22 +12,13 @@ import { Contact } from '@/components/sections/Contact'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
 import { AdminLogin } from '@/components/admin/AdminLogin'
 import { ProtectedRoute } from '@/components/admin/ProtectedRoute'
-import { flagpost } from '@/lib/flags'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag'
 
 /**
- * Dynamic showcase banner controlled live by Flagpost Feature Flag Service
+ * Dynamic showcase banner controlled live by Vexlo Feature Flag Service
  */
-const FlagpostBanner: React.FC = () => {
-  const [isEnabled, setIsEnabled] = useState(() =>
-    flagpost.isEnabled('show-flagpost-showcase')
-  )
-
-  useEffect(() => {
-    // Re-check once initial network sync completes
-    flagpost.ready().then(() => {
-      setIsEnabled(flagpost.isEnabled('show-flagpost-showcase'))
-    })
-  }, [])
+const VexloBanner: React.FC = () => {
+  const isEnabled = useFeatureFlag('show-vexlo-showcase')
 
   if (!isEnabled) return null
 
@@ -45,12 +36,12 @@ const FlagpostBanner: React.FC = () => {
                 Live Feature Flag Active
               </p>
               <p className="text-sm font-medium text-[var(--text-primary)] mt-0.5">
-                ✨ <strong>Flagpost Integration:</strong> This section is dynamically evaluated in real time by my self-hosted Feature Flag Service!
+                ✨ <strong>Vexlo Integration:</strong> This section is dynamically evaluated in real time by my self-hosted Feature Flag Service!
               </p>
             </div>
           </div>
           <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-medium bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border border-[var(--border-primary)]">
-            flag: show-flagpost-showcase
+            flag: show-vexlo-showcase
           </span>
         </div>
       </div>
@@ -71,7 +62,7 @@ const PortfolioHome: React.FC = () => {
       <main>
         <Hero />
         <About />
-        <FlagpostBanner />
+        <VexloBanner />
         <FeaturedProjects />
         <ProjectsGallery />
         <Skills />

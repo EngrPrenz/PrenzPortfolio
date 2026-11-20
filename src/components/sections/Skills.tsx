@@ -9,8 +9,11 @@ import { skillsCategories } from '@/data/skills'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
 import { TechLogo } from '@/components/ui/TechLogo'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag'
 
 export const Skills: React.FC = () => {
+  const showTechLogos = useFeatureFlag('skill-tech-logos', undefined, true)
+
   const categoryIcons = [
     <Browsers key="frontend" size={24} aria-hidden="true" className="text-[var(--accent-neon)]" />,
     <Terminal key="backend" size={24} aria-hidden="true" className="text-[var(--accent-neon)]" />,
@@ -62,15 +65,17 @@ export const Skills: React.FC = () => {
                       key={skill.name}
                       className="group/skill flex items-center gap-3.5 p-2.5 rounded-xl bg-[var(--bg-tertiary)]/65 hover:bg-[var(--bg-tertiary)] border border-transparent hover:border-[var(--border-hover)]/60 transition-all duration-200"
                     >
-                      <div className="w-12 h-9 shrink-0 rounded-lg bg-[var(--bg-primary)]/90 border border-[var(--border-primary)] group-hover/skill:border-[var(--accent-neon)]/50 group-hover/skill:shadow-[0_0_14px_var(--accent-neon-glow)] flex items-center justify-center gap-1 transition-all duration-200 group-hover/skill:scale-105 motion-reduce:transition-none motion-reduce:group-hover/skill:scale-100">
-                        {skill.icons.map((iconId) => (
-                          <TechLogo
-                            key={iconId}
-                            id={iconId}
-                            size={skill.icons.length > 1 ? 17 : 22}
-                          />
-                        ))}
-                      </div>
+                      {showTechLogos && (
+                        <div className="w-12 h-9 shrink-0 rounded-lg bg-[var(--bg-primary)]/90 border border-[var(--border-primary)] group-hover/skill:border-[var(--accent-neon)]/50 group-hover/skill:shadow-[0_0_14px_var(--accent-neon-glow)] flex items-center justify-center gap-1 transition-all duration-200 group-hover/skill:scale-105 motion-reduce:transition-none motion-reduce:group-hover/skill:scale-100">
+                          {skill.icons.map((iconId) => (
+                            <TechLogo
+                              key={iconId}
+                              id={iconId}
+                              size={skill.icons.length > 1 ? 17 : 22}
+                            />
+                          ))}
+                        </div>
+                      )}
 
                       <div className="min-w-0 flex-1">
                         <div className="font-mono text-[13px] font-bold text-[var(--text-primary)] group-hover/skill:text-[var(--accent-neon)] transition-colors leading-tight">
