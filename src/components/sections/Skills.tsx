@@ -8,13 +8,17 @@ import {
 import { skillsCategories } from '@/data/skills'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
+import { TechLogo } from '@/components/ui/TechLogo'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag'
 
 export const Skills: React.FC = () => {
+  const showTechLogos = useFeatureFlag('skill-tech-logos', undefined, true)
+
   const categoryIcons = [
-    <Browsers key="frontend" size={24} className="text-[var(--accent-neon)]" />,
-    <Terminal key="backend" size={24} className="text-[var(--accent-neon)]" />,
-    <Database key="database" size={24} className="text-[var(--accent-neon)]" />,
-    <Wrench key="tools" size={24} className="text-[var(--accent-neon)]" />,
+    <Browsers key="frontend" size={24} aria-hidden="true" className="text-[var(--accent-neon)]" />,
+    <Terminal key="backend" size={24} aria-hidden="true" className="text-[var(--accent-neon)]" />,
+    <Database key="database" size={24} aria-hidden="true" className="text-[var(--accent-neon)]" />,
+    <Wrench key="tools" size={24} aria-hidden="true" className="text-[var(--accent-neon)]" />,
   ]
 
   return (
@@ -54,24 +58,38 @@ export const Skills: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Skills List with Details */}
-                <div className="space-y-3 pt-4 border-t border-[var(--border-primary)]">
+                {/* Skills List with Logos & Details */}
+                <ul className="space-y-2.5 pt-4 border-t border-[var(--border-primary)]">
                   {category.skills.map((skill) => (
-                    <div
+                    <li
                       key={skill.name}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded-lg bg-[var(--bg-tertiary)]/70 hover:bg-[var(--bg-tertiary)] transition-colors gap-1 sm:gap-4"
+                      className="group/skill flex items-center gap-3.5 p-2.5 rounded-xl bg-[var(--bg-tertiary)]/65 hover:bg-[var(--bg-tertiary)] border border-transparent hover:border-[var(--border-hover)]/60 transition-all duration-200"
                     >
-                      <span className="font-mono text-xs font-bold text-[var(--text-primary)]">
-                        {skill.name}
-                      </span>
-                      {skill.description && (
-                        <span className="text-xs text-[var(--text-tertiary)] sm:text-right font-normal">
-                          {skill.description}
-                        </span>
+                      {showTechLogos && (
+                        <div className="w-12 h-9 shrink-0 rounded-lg bg-[var(--bg-primary)]/90 border border-[var(--border-primary)] group-hover/skill:border-[var(--accent-neon)]/50 group-hover/skill:shadow-[0_0_14px_var(--accent-neon-glow)] flex items-center justify-center gap-1 transition-all duration-200 group-hover/skill:scale-105 motion-reduce:transition-none motion-reduce:group-hover/skill:scale-100">
+                          {skill.icons.map((iconId) => (
+                            <TechLogo
+                              key={iconId}
+                              id={iconId}
+                              size={skill.icons.length > 1 ? 17 : 22}
+                            />
+                          ))}
+                        </div>
                       )}
-                    </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="font-mono text-[13px] font-bold text-[var(--text-primary)] group-hover/skill:text-[var(--accent-neon)] transition-colors leading-tight">
+                          {skill.name}
+                        </div>
+                        {skill.description && (
+                          <p className="text-xs text-[var(--text-secondary)] leading-snug mt-0.5">
+                            {skill.description}
+                          </p>
+                        )}
+                      </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             </RevealOnScroll>
           ))}

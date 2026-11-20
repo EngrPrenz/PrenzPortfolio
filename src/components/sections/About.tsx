@@ -13,6 +13,8 @@ import {
   Wrench,
   Globe,
   DeviceMobile,
+  Guitar,
+  Motorcycle,
 } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SectionHeading } from '@/components/ui/SectionHeading'
@@ -37,28 +39,32 @@ export const About: React.FC = () => {
   const renderHobbyIcon = (iconName: string) => {
     switch (iconName) {
       case 'Cpu':
-        return <Cpu size={22} className="text-[var(--accent-neon)]" />
+        return <Cpu size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
       case 'Circuitry':
-        return <Cpu size={22} className="text-[var(--accent-neon)]" />
+        return <Cpu size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
       case 'GameController':
-        return <GameController size={22} className="text-[var(--accent-neon)]" />
+        return <GameController size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
       case 'Cube':
-        return <Cube size={22} className="text-[var(--accent-neon)]" />
+        return <Cube size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
       case 'Wrench':
-        return <Wrench size={22} className="text-[var(--accent-neon)]" />
+        return <Wrench size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
       case 'Camera':
-        return <Camera size={22} className="text-[var(--accent-neon)]" />
+        return <Camera size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
       case 'MusicNotes':
-        return <MusicNotes size={22} className="text-[var(--accent-neon)]" />
+        return <MusicNotes size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
+      case 'Guitar':
+        return <Guitar size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
+      case 'Motorcycle':
+        return <Motorcycle size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
       case 'Globe':
-        return <Globe size={22} className="text-[var(--accent-neon)]" />
+        return <Globe size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
       case 'DeviceMobile':
-        return <DeviceMobile size={22} className="text-[var(--accent-neon)]" />
+        return <DeviceMobile size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
       default:
         if (iconName && iconName.length <= 4) {
-          return <span className="text-xl">{iconName}</span>
+          return <span aria-hidden="true" className="text-xl">{iconName}</span>
         }
-        return <Sparkle size={22} className="text-[var(--accent-neon)]" />
+        return <Sparkle size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
     }
   }
 
@@ -213,8 +219,9 @@ export const About: React.FC = () => {
             >
               <div className="max-w-2xl">
                 <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
-                  Outside of commercial software development and academic engineering, here are the
-                  hands-on hardware, simulation experiments, and maker passions that fuel my curiosity.
+                  Beyond code and engineering, here are the personal passions that keep me energized—from
+                  building custom PCs and playing guitar to competitive gaming and hitting the road on my
+                  motorcycle.
                 </p>
               </div>
 
@@ -250,38 +257,31 @@ export const About: React.FC = () => {
                       </div>
 
                       {/* Description */}
-                      <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed mb-5">
+                      <p
+                        className={`text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed ${
+                          hobby.imageUrl ? 'mb-5' : ''
+                        }`}
+                      >
                         {hobby.description}
                       </p>
                     </div>
 
-                    {/* Footer: Tags & Optional Image */}
-                    <div className="space-y-3 pt-3 border-t border-[var(--border-primary)]/60">
-                      {hobby.imageUrl && (
-                        <div className="relative rounded-xl overflow-hidden aspect-video border border-[var(--border-primary)] bg-[var(--bg-primary)] max-h-36">
+                    {/* Showcase Image */}
+                    {hobby.imageUrl && (
+                      <div className="pt-3 border-t border-[var(--border-primary)]/60">
+                        <div className="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden border border-[var(--border-primary)] bg-[var(--bg-primary)]">
                           <img
                             src={hobby.imageUrl}
                             alt={hobby.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                             loading="lazy"
                             onError={(e) => {
                               ;(e.target as HTMLElement).style.display = 'none'
                             }}
                           />
                         </div>
-                      )}
-
-                      <div className="flex flex-wrap gap-1.5">
-                        {hobby.tags.map((tag, tagIdx) => (
-                          <span
-                            key={tagIdx}
-                            className="px-2.5 py-1 rounded-full text-[11px] font-mono bg-[var(--bg-primary)] border border-[var(--border-primary)] text-[var(--text-secondary)] group-hover:border-[var(--accent-neon)]/30 group-hover:text-[var(--text-primary)] transition-colors"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
                       </div>
-                    </div>
+                    )}
                   </motion.div>
                 ))}
               </div>

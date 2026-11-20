@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" width="800" height="360">
+  <defs>
+    <linearGradient id="guitarBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0d0c" />
+      <stop offset="100%" stop-color="#111715" />
+    </linearGradient>
+    <radialGradient id="guitarGlow" cx="26%" cy="50%" r="42%">
+      <stop offset="0%" stop-color="#00ff88" stop-opacity="0.14" />
+      <stop offset="100%" stop-color="#00ff88" stop-opacity="0" />
+    </radialGradient>
+    <pattern id="guitarGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#1d2823" stroke-width="1" stroke-opacity="0.45" />
+    </pattern>
+  </defs>
+
+  <rect width="800" height="360" rx="16" fill="url(#guitarBg)" />
+  <rect width="800" height="360" rx="16" fill="url(#guitarGrid)" />
+  <rect width="800" height="360" rx="16" fill="url(#guitarGlow)" />
+  <rect x="2" y="2" width="796" height="356" rx="14" fill="none" stroke="#00ff88" stroke-opacity="0.22" stroke-width="1.5" />
+
+  <!-- Decorative Guitar & Soundwave Graphic (Left) -->
+  <g transform="translate(88, 66)">
+    <!-- Soundwave bars -->
+    <rect x="148" y="96" width="5" height="36" rx="2.5" fill="#00ff88" fill-opacity="0.35" />
+    <rect x="160" y="78" width="5" height="72" rx="2.5" fill="#00ff88" fill-opacity="0.55" />
+    <rect x="172" y="62" width="5" height="104" rx="2.5" fill="#00ff88" fill-opacity="0.85" />
+    <rect x="184" y="84" width="5" height="60" rx="2.5" fill="#00ff88" fill-opacity="0.45" />
+    <rect x="196" y="100" width="5" height="28" rx="2.5" fill="#00ff88" fill-opacity="0.25" />
+
+    <!-- Stylized Geometric Guitar Silhouette -->
+    <g transform="rotate(-28 84 126)">
+      <!-- Body -->
+      <path d="M 64 96 C 42 96 34 116 44 134 C 49 143 47 152 38 164 C 24 182 32 212 62 218 C 94 224 122 204 118 176 C 115 156 104 148 106 135 C 110 112 92 96 64 96 Z" fill="#131c18" stroke="#00ff88" stroke-width="2.2" />
+      <!-- Soundhole -->
+      <circle cx="76" cy="144" r="15" fill="#0a0d0c" stroke="#00ff88" stroke-width="2" />
+      <circle cx="76" cy="144" r="20" fill="none" stroke="#00ff88" stroke-opacity="0.35" stroke-width="1" stroke-dasharray="3 3" />
+      <!-- Bridge -->
+      <rect x="61" y="178" width="30" height="7" rx="3" fill="#00ff88" fill-opacity="0.8" />
+      <!-- Neck & Fretboard -->
+      <rect x="70" y="18" width="12" height="86" rx="3" fill="#18241e" stroke="#00ff88" stroke-width="1.8" />
+      <!-- Headstock -->
+      <path d="M 67 0 L 85 0 L 83 20 L 69 20 Z" rx="3" fill="#131c18" stroke="#00ff88" stroke-width="1.8" />
+      <!-- Strings -->
+      <line x1="73" y1="20" x2="73" y2="178" stroke="#e2f5ec" stroke-opacity="0.45" stroke-width="1" />
+      <line x1="76" y1="20" x2="76" y2="178" stroke="#e2f5ec" stroke-opacity="0.55" stroke-width="1" />
+      <line x1="79" y1="20" x2="79" y2="178" stroke="#e2f5ec" stroke-opacity="0.45" stroke-width="1" />
+    </g>
+  </g>
+
+  <!-- Right Copy Block -->
+  <g transform="translate(340, 108)">
+    <rect x="0" y="0" width="236" height="28" rx="14" fill="#00ff88" fill-opacity="0.12" stroke="#00ff88" stroke-opacity="0.4" stroke-width="1" />
+    <circle cx="16" cy="14" r="3.5" fill="#00ff88" />
+    <text x="28" y="18" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#00ff88" letter-spacing="1.2">
+      LOCAL PHOTO PLACEHOLDER
+    </text>
+
+    <text x="0" y="68" font-family="'Outfit', 'JetBrains Mono', sans-serif" font-size="34" font-weight="800" fill="#f3f7f5" letter-spacing="0.5">
+      GUITAR PLAYING
+    </text>
+
+    <rect x="0" y="88" width="388" height="40" rx="10" fill="#0b0f0d" stroke="#23302a" stroke-width="1" />
+    <text x="16" y="113" font-family="'JetBrains Mono', monospace" font-size="13.5" fill="#9fb2a8">
+      Replace with <tspan fill="#00ff88" font-weight="600">/hobbies/guitar.jpg</tspan>
+    </text>
+  </g>
+</svg>

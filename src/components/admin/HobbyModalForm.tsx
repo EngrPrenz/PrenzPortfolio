@@ -17,8 +17,10 @@ interface HobbyModalFormProps {
 
 const PRESET_ICONS = [
   'Cpu',
-  'Circuitry',
+  'Guitar',
   'GameController',
+  'Motorcycle',
+  'Circuitry',
   'Cube',
   'Wrench',
   'Camera',
@@ -30,6 +32,9 @@ const PRESET_ICONS = [
 
 const CATEGORY_PRESETS = [
   'Hardware & Systems',
+  'Music & Creative',
+  'Gaming & Esports',
+  'Travel & Riding',
   'Engineering & Maker',
   'Interactive Media',
   'Physical Computing',
@@ -343,7 +348,7 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
                 type="text"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://images.unsplash.com/..."
+                placeholder="/hobbies/guitar.jpg or https://..."
                 className="flex-1 w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg py-1.5 px-3 text-xs text-[var(--text-primary)] font-mono focus:border-[var(--accent-neon)] focus:outline-none"
               />
             </div>

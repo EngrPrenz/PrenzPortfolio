@@ -31,6 +31,8 @@ import {
   MagnifyingGlass,
   Star,
   Terminal,
+  Guitar,
+  Motorcycle,
 } from '@phosphor-icons/react'
 
 export const AdminDashboard: React.FC = () => {
@@ -214,6 +216,10 @@ export const AdminDashboard: React.FC = () => {
         return <Camera size={20} className="text-[var(--accent-neon)]" />
       case 'MusicNotes':
         return <MusicNotes size={20} className="text-[var(--accent-neon)]" />
+      case 'Guitar':
+        return <Guitar size={20} className="text-[var(--accent-neon)]" />
+      case 'Motorcycle':
+        return <Motorcycle size={20} className="text-[var(--accent-neon)]" />
       case 'Globe':
         return <Globe size={20} className="text-[var(--accent-neon)]" />
       case 'DeviceMobile':
