@@ -3,25 +3,47 @@ import { Project, projectsData } from '@/data/projects'
 
 const LOCAL_STORAGE_KEY = 'prenz_portfolio_projects_cache'
 
+// Normalize screenshot paths so local public assets resolve correctly across all routes
+const normalizeScreenshotUrl = (url: string, project?: { id?: string; title?: string }): string => {
+  const trimmed = (url || '').trim()
+  if (!trimmed) return ''
+  if (/^(https?:|data:|blob:)/i.test(trimmed)) return trimmed
+
+  const slug = (project?.title || project?.id || '').toLowerCase()
+  if (slug.includes('vexlo')) {
+    const vexloMatch = trimmed.match(/^(?:\/?projects\/)?(1\.5|[1-5])\.png$/i)
+    if (vexloMatch) {
+      return `/projects/vexlo/${vexloMatch[1]}.png`
+    }
+  }
+
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+}
+
 // Helper to convert database row (snake_case) to Project interface (camelCase)
-const mapDbToProject = (row: any): Project => ({
-  id: row.id,
-  title: row.title,
-  subtitle: row.subtitle || '',
-  role: row.role || '',
-  categoryTag: row.category_tag || 'SOFTWARE DEVELOPMENT',
-  description: row.description,
-  longDescription: row.long_description || '',
-  keyFeatures: Array.isArray(row.key_features) ? row.key_features : [],
-  techStack: Array.isArray(row.tech_stack) ? row.tech_stack : [],
-  status: row.status || 'live',
-  liveUrl: row.live_url || undefined,
-  githubUrl: row.github_url || undefined,
-  featured: Boolean(row.featured),
-  category: row.category || 'Full Stack',
-  metrics: Array.isArray(row.metrics) ? row.metrics : [],
-  screenshots: Array.isArray(row.screenshots) ? row.screenshots : [],
-})
+const mapDbToProject = (row: any): Project => {
+  const rawScreenshots = Array.isArray(row.screenshots) ? row.screenshots : []
+  return {
+    id: row.id,
+    title: row.title,
+    subtitle: row.subtitle || '',
+    role: row.role || '',
+    categoryTag: row.category_tag || 'SOFTWARE DEVELOPMENT',
+    description: row.description,
+    longDescription: row.long_description || '',
+    keyFeatures: Array.isArray(row.key_features) ? row.key_features : [],
+    techStack: Array.isArray(row.tech_stack) ? row.tech_stack : [],
+    status: row.status || 'live',
+    liveUrl: row.live_url || undefined,
+    githubUrl: row.github_url || undefined,
+    featured: Boolean(row.featured),
+    category: row.category || 'Full Stack',
+    metrics: Array.isArray(row.metrics) ? row.metrics : [],
+    screenshots: rawScreenshots
+      .filter((s: unknown): s is string => typeof s === 'string' && s.trim().length > 0)
+      .map((s: string) => normalizeScreenshotUrl(s, row)),
+  }
+}
 
 // Helper to convert Project to database row
 const mapProjectToDb = (project: Project): any => ({
@@ -40,7 +62,7 @@ const mapProjectToDb = (project: Project): any => ({
   featured: project.featured,
   category: project.category,
   metrics: project.metrics || [],
-  screenshots: project.screenshots,
+  screenshots: (project.screenshots || []).map((s) => normalizeScreenshotUrl(s, project)),
   updated_at: new Date().toISOString(),
 })
 
@@ -48,7 +70,17 @@ export const getLocalCachedProjects = (): Project[] => {
   try {
     const cached = localStorage.getItem(LOCAL_STORAGE_KEY)
     if (cached) {
-      return JSON.parse(cached)
+      const parsed = JSON.parse(cached)
+      if (Array.isArray(parsed)) {
+        return parsed.map((p: Project) => ({
+          ...p,
+          screenshots: Array.isArray(p.screenshots)
+            ? p.screenshots
+                .filter((s: unknown): s is string => typeof s === 'string' && s.trim().length > 0)
+                .map((s: string) => normalizeScreenshotUrl(s, p))
+            : [],
+        }))
+      }
     }
   } catch (err) {
     console.warn('Failed reading from localStorage', err)
@@ -154,7 +186,11 @@ export const projectsService = {
     if (updates.featured !== undefined) dbPayload.featured = updates.featured
     if (updates.category !== undefined) dbPayload.category = updates.category
     if (updates.metrics !== undefined) dbPayload.metrics = updates.metrics
-    if (updates.screenshots !== undefined) dbPayload.screenshots = updates.screenshots
+    if (updates.screenshots !== undefined) {
+      dbPayload.screenshots = updates.screenshots
+        .filter((s: unknown): s is string => typeof s === 'string' && s.trim().length > 0)
+        .map((s: string) => normalizeScreenshotUrl(s, { id, title: updates.title }))
+    }
     dbPayload.updated_at = new Date().toISOString()
 
     const { data, error } = await supabase

@@ -50,8 +50,12 @@ export const getHobbyImages = (hobby: Pick<Hobby, 'imageUrl' | 'images'>): strin
   const seen = new Set<string>()
   const result: string[] = []
   for (const item of raw) {
-    const clean = item.trim()
-    if (clean.length > 0 && !seen.has(clean)) {
+    let clean = item.trim()
+    if (!clean) continue
+    if (!/^(https?:|data:|blob:|\/)/i.test(clean)) {
+      clean = `/${clean}`
+    }
+    if (!seen.has(clean)) {
       seen.add(clean)
       result.push(clean)
     }

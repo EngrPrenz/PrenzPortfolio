@@ -156,17 +156,27 @@ dialog:modal {
 dialog::backdrop {
   overflow: hidden;
   overscroll-behavior: contain;
-  background-color: rgba(0, 0, 0, 0.82);
+  background-color: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
-.hobby-dialog:not([open]) {
+.hobby-dialog:not([open]),
+.project-dialog:not([open]),
+.lightbox-dialog:not([open]) {
   display: none;
 }
 
-.hobby-dialog[open] {
+.hobby-dialog[open],
+.project-dialog[open],
+.lightbox-dialog[open] {
   display: flex;
+}
+
+.lightbox-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 /* Hobby Modal horizontal scroll-snap carousel */

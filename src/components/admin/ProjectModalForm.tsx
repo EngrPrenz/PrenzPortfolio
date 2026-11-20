@@ -140,8 +140,10 @@ export const ProjectModalForm: React.FC<ProjectModalFormProps> = ({
   }
 
   const handleAddImageUrl = () => {
-    if (newImageUrl.trim()) {
-      setScreenshots([...screenshots, newImageUrl.trim()])
+    const trimmed = newImageUrl.trim()
+    if (trimmed) {
+      const normalized = /^(https?:|data:|blob:|\/)/i.test(trimmed) ? trimmed : `/${trimmed}`
+      setScreenshots([...screenshots, normalized])
       setNewImageUrl('')
     }
   }
