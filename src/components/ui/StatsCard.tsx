@@ -27,7 +27,7 @@ export const StatsCard: React.FC = () => {
 
   const stats = [
     { label: 'Years Coding', value: '3+', icon: <Code size={20} className="text-[var(--accent-neon)]" /> },
-    { label: 'Shipped Projects', value: '4+', icon: <Terminal size={20} className="text-[var(--accent-neon)]" /> },
+    { label: 'Shipped Projects', value: '5+', icon: <Terminal size={20} className="text-[var(--accent-neon)]" /> },
     { label: 'Technologies', value: '15+', icon: <Cpu size={20} className="text-[var(--accent-neon)]" /> },
     { label: 'GitHub Repos', value: '10+', icon: <GitFork size={20} className="text-[var(--accent-neon)]" /> },
   ]
@@ -73,7 +73,7 @@ export const StatsCard: React.FC = () => {
               </span>
               AVAILABLE FOR ROLES
             </div>
-            <span className="text-xs font-mono text-[var(--text-secondary)]">v2025.1</span>
+            <span className="text-xs font-mono text-[var(--text-secondary)]">v2026.1</span>
           </div>
 
           <div className="pt-2">

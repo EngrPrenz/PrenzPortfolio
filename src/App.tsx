@@ -8,6 +8,7 @@ import { About } from '@/components/sections/About'
 import { FeaturedProjects } from '@/components/sections/FeaturedProjects'
 import { ProjectsGallery } from '@/components/sections/ProjectsGallery'
 import { Skills } from '@/components/sections/Skills'
+import { Certifications } from '@/components/sections/Certifications'
 import { Contact } from '@/components/sections/Contact'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
 import { AdminLogin } from '@/components/admin/AdminLogin'
@@ -29,6 +30,7 @@ const PortfolioHome: React.FC = () => {
         <FeaturedProjects />
         <ProjectsGallery />
         <Skills />
+        <Certifications />
         <Contact />
       </main>
 

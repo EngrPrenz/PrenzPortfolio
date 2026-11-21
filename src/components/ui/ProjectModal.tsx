@@ -9,6 +9,7 @@ import {
   ArrowsOutSimple,
   MagnifyingGlassPlus,
   MagnifyingGlassMinus,
+  ShieldCheck,
 } from '@phosphor-icons/react'
 import { Project } from '@/data/projects'
 import { GlowButton } from './GlowButton'
@@ -339,6 +340,31 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
                     {project.longDescription || project.description}
                   </p>
                 </div>
+
+                {/* Measurable Impact & Architecture Metrics */}
+                {project.metrics && project.metrics.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-mono font-bold text-[#00ff88] uppercase tracking-wider mb-3">
+                      Measurable Impact &amp; Architecture
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {project.metrics.map((metric, idx) => (
+                        <div
+                          key={idx}
+                          className="p-3 rounded-xl bg-[#161b22] border border-[#30363d]/80"
+                        >
+                          <div className="text-[11px] font-mono text-[#8b949e] uppercase tracking-wider flex items-center gap-1.5">
+                            <ShieldCheck size={14} className="text-[#00ff88] shrink-0" aria-hidden="true" />
+                            <span className="truncate">{metric.label}</span>
+                          </div>
+                          <div className="text-xs sm:text-sm font-semibold font-mono text-white mt-1 leading-snug">
+                            {metric.value}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Key Features & Highlights */}
                 {project.keyFeatures && project.keyFeatures.length > 0 && (

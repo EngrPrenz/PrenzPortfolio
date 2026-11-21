@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:resume": "node scripts/build-resume.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

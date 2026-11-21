@@ -163,12 +163,14 @@ dialog::backdrop {
 
 .hobby-dialog:not([open]),
 .project-dialog:not([open]),
+.certification-dialog:not([open]),
 .lightbox-dialog:not([open]) {
   display: none;
 }
 
 .hobby-dialog[open],
 .project-dialog[open],
+.certification-dialog[open],
 .lightbox-dialog[open] {
   display: flex;
 }

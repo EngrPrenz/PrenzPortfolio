@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prince Psalm Vivaz — Resume</title>
+  <style>
+    @page {
+      size: letter;
+      margin: 0.42in 0.52in;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background: #ffffff;
+      color: #111111;
+      font-family: "Times New Roman", Times, Georgia, serif;
+      font-size: 10pt;
+      line-height: 1.24;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 7.46in;
+      margin: 0 auto;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 8.5pt;
+    }
+
+    .header h1 {
+      font-size: 16.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      line-height: 1.15;
+      margin-bottom: 3pt;
+    }
+
+    .contact-line {
+      font-size: 9.5pt;
+      line-height: 1.32;
+    }
+
+    .sep {
+      margin: 0 5pt;
+    }
+
+    /* Section Headings */
+    section {
+      margin-bottom: 8pt;
+    }
+
+    section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      font-size: 10.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1pt solid #111111;
+      padding-bottom: 1.5pt;
+      margin-bottom: 5pt;
+    }
+
+    /* Row Layout with Right-Aligned Metadata */
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10pt;
+    }
+
+    .row-left {
+      min-width: 0;
+    }
+
+    .row-right {
+      flex-shrink: 0;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .entry {
+      margin-bottom: 6pt;
+    }
+
+    .entry:last-child {
+      margin-bottom: 0;
+    }
+
+    .sub-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10pt;
+      font-size: 9.25pt;
+      margin-top: 0.5pt;
+      margin-bottom: 2.5pt;
+    }
+
+    .tech-line {
+      font-style: italic;
+    }
+
+    .live-link {
+      flex-shrink: 0;
+      white-space: nowrap;
+      font-size: 9pt;
+    }
+
+    .coursework {
+      margin-top: 1.5pt;
+      font-size: 9.75pt;
+    }
+
+    /* Bullet Lists */
+    ul.bullets {
+      margin-left: 16pt;
+      list-style-type: disc;
+    }
+
+    ul.bullets li {
+      margin-bottom: 2pt;
+      text-align: left;
+    }
+
+    ul.bullets li:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Technical Skills */
+    .skills-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .skills-list li {
+      margin-bottom: 2.25pt;
+      line-height: 1.24;
+    }
+
+    .skills-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    code, .code-id {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 8.75pt;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <!-- HEADER -->
+    <header class="header">
+      <h1>PRINCE PSALM VIVAZ</h1>
+      <div class="contact-line">
+        Antipolo City, Rizal, Philippines<span class="sep">|</span>+63 999 664 3299<span class="sep">|</span><a href="mailto:vivazprince@gmail.com">vivazprince@gmail.com</a>
+      </div>
+      <div class="contact-line">
+        <a href="https://www.linkedin.com/in/prince-psalm-vivaz-8972b7189">linkedin.com/in/prince-psalm-vivaz-8972b7189</a><span class="sep">|</span><a href="https://github.com/EngrPrenz">github.com/EngrPrenz</a><span class="sep">|</span><a href="https://prenz-portfolio.dev">prenz-portfolio.dev</a>
+      </div>
+    </header>
+
+    <!-- EDUCATION -->
+    <section>
+      <h2 class="section-title">Education</h2>
+      <div class="entry">
+        <div class="row">
+          <div class="row-left"><strong>University of Rizal System</strong></div>
+          <div class="row-right">Antipolo City, Rizal, Philippines</div>
+        </div>
+        <div class="row">
+          <div class="row-left"><em>Bachelor of Science in Computer Engineering</em></div>
+          <div class="row-right"><em>Expected Graduation: 2027</em></div>
+        </div>
+        <p class="coursework">
+          <strong>Relevant Coursework:</strong> Database Systems, Software Design, Computer Networks, Data Structures &amp; Algorithms
+        </p>
+      </div>
+    </section>
+
+    <!-- TECHNICAL PROJECTS -->
+    <section>
+      <h2 class="section-title">Technical Projects</h2>
+
+      <div class="entry">
+        <div class="row">
+          <div class="row-left">
+            <strong>Vexlo — Feature Flag &amp; Remote Configuration Platform</strong> (<em>Sole Full-Stack Engineer</em>)
+          </div>
+          <div class="row-right"><strong>Nov 2026</strong></div>
+        </div>
+        <div class="sub-row">
+          <div class="tech-line">TypeScript, React 18, Node.js, Express, Neon PostgreSQL, Drizzle ORM, C#/.NET, TurboRepo</div>
+          <div class="live-link"><a href="https://vexlo-zeta.vercel.app">vexlo-zeta.vercel.app</a></div>
+        </div>
+        <ul class="bullets">
+          <li>Solely architected a dual-runtime feature flag monorepo supporting Vercel Serverless + Neon PostgreSQL and an offline C#/.NET Windows tray daemon, eliminating recurring third-party SaaS costs across <strong>3 isolated environments</strong> (Dev, Staging, Production).</li>
+          <li>Engineered an in-memory evaluation engine (<code>@vexlo/evaluator</code>) achieving <strong>&lt; 0.05ms</strong> local evaluation latency with deterministic <strong>0–99 MurmurHash3</strong> rollout bucketing across <strong>6 SDK integration targets</strong> (React, TypeScript, Node.js, C#, Python, cURL).</li>
+          <li>Implemented SHA-1 content-hashed HTTP ETag polling returning <strong>304 Not Modified</strong> (0-byte unchanged sync payloads), a Production Lock confirmation guard, and an audit activity log; dogfooded live in production on <a href="https://prenz-portfolio.dev">prenz-portfolio.dev</a>.</li>
+        </ul>
+      </div>
+
+      <div class="entry">
+        <div class="row">
+          <div class="row-left">
+            <strong>Salo sa Antipolo — Multi-Role Restaurant Operations &amp; POS</strong> (<em>Full-Stack Developer &amp; QA, Team</em>)
+          </div>
+          <div class="row-right"><strong>2026</strong></div>
+        </div>
+        <div class="sub-row">
+          <div class="tech-line">React, Firebase Firestore, JavaScript (ES6+), HTML5, CSS3</div>
+          <div class="live-link"><a href="https://salo-sa-antipolo.web.app">salo-sa-antipolo.web.app</a></div>
+        </div>
+        <ul class="bullets">
+          <li>Co-built a real-time Firebase-backed POS unifying <strong>3 role portals</strong> (Waiter/Order Kiosk, Cashier Terminal, Admin Analytics) over a live <strong>13-table</strong> status grid, streamlining dine-in/takeout ordering and kitchen handoffs.</li>
+          <li>Implemented automated billing calculations enforcing <strong>12% VAT</strong>, <strong>7% Service Charge</strong>, and <strong>20% Senior Citizen/PWD VAT-exempt</strong> discounts, eliminating manual cashier computation errors across checkout and daily/monthly sales reports.</li>
+          <li>Led concurrency QA for real-time order-state transitions (Preparing, Pending Payment, Paid · Unserved, Served), identifying and resolving race conditions during simultaneous multi-table order submissions.</li>
+        </ul>
+      </div>
+
+      <div class="entry">
+        <div class="row">
+          <div class="row-left">
+            <strong>URSAC Hub — Campus Organization &amp; Marketplace</strong> (<em>Full-Stack Developer &amp; QA, Team</em>)
+          </div>
+          <div class="row-right"><strong>Nov 2024</strong></div>
+        </div>
+        <div class="sub-row">
+          <div class="tech-line">Laravel, PHP, MySQL, Blade, Tailwind CSS, JavaScript</div>
+          <div class="live-link"><a href="https://ursachub.onrender.com">ursachub.onrender.com</a></div>
+        </div>
+        <ul class="bullets">
+          <li>Co-developed a centralized Laravel + MySQL campus platform integrating <strong>4 core modules</strong> (Wall, News, Shop, Orgs) serving <strong>5+ student councils and organizations</strong>, consolidating scattered social-media event announcements and merchandise orders.</li>
+          <li>Designed relational inventory tracking and executed Role-Based Access Control (RBAC) and session-isolation testing across student, organization officer, and admin roles, blocking unauthorized privilege escalation and route tampering before release.</li>
+        </ul>
+      </div>
+
+      <div class="entry">
+        <div class="row">
+          <div class="row-left">
+            <strong>AR-DUINO — AR Microcontroller Learning Interface</strong> (<em>Lead Systems &amp; AR Developer, Team</em>)
+          </div>
+          <div class="row-right"><strong>2025</strong></div>
+        </div>
+        <div class="sub-row">
+          <div class="tech-line">Unity 3D, C#, AR Foundation, Arduino Uno R3</div>
+          <div class="live-link"><a href="https://ar-duino-website.vercel.app">ar-duino-website.vercel.app</a></div>
+        </div>
+        <ul class="bullets">
+          <li>Led Unity 3D/C# AR systems architecture for <strong>4 tiered Arduino Uno R3 lab modules</strong> (Blinking LED, Potentiometer, LED Patterns, interactive AR RC-Car) with step-by-step breadboard pinout overlays to accelerate beginner hardware setup.</li>
+          <li>Benchmarked camera tracking latency and spatial anchor persistence across varied ambient lighting conditions, maintaining <strong>&lt; 25ms</strong> spatial anchor responsiveness for reliable physical-to-digital overlay alignment.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CERTIFICATIONS -->
+    <section>
+      <h2 class="section-title">Certifications</h2>
+      <div class="entry">
+        <div class="row">
+          <div class="row-left">
+            <strong>Prompt Like an Engineer</strong> — <em>Cisco Networking Academy (DICT-ITU DTC Initiative)</em>
+          </div>
+          <div class="row-right"><strong>Nov 2026</strong></div>
+        </div>
+        <ul class="bullets">
+          <li>Credential ID: <span class="code-id">dcba8119-1143-46d8-8e92-eda33ecf83f0</span> — Mastered LLM chatbot orchestration (memory, tools, system prompts), structured prompt patterns (few-shot, chain-of-thought, chaining, multi-expert panel), cloud vs. local model selection (privacy/quantization trade-offs), and AI output verification.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- TECHNICAL SKILLS -->
+    <section>
+      <h2 class="section-title">Technical Skills</h2>
+      <ul class="skills-list">
+        <li><strong>Languages:</strong> TypeScript, JavaScript (ES6+), PHP, SQL, C#, Python, Java, HTML5, CSS3</li>
+        <li><strong>Frameworks &amp; Platforms:</strong> React, Laravel, Blade, Node.js, Express, Tailwind CSS, .NET, Unity 3D (AR Foundation), Drizzle ORM</li>
+        <li><strong>Databases &amp; Cloud:</strong> PostgreSQL (Neon, Supabase), MySQL, Firebase (Firestore, Auth, Hosting), Vercel, Render</li>
+        <li><strong>QA, Testing &amp; Tools:</strong> Functional &amp; Regression Testing, Boundary-Value Analysis, Concurrency &amp; State-Sync QA, RBAC &amp; Session Security Testing, Prompt Engineering &amp; AI Evaluation, Git/GitHub, TurboRepo</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

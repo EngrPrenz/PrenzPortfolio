@@ -25,9 +25,9 @@ export const projectsData: Project[] = [
     id: 'ursac-hub',
     title: 'URSAC HUB MARKETPLACE',
     subtitle: 'Campus Organization & Marketplace Platform',
-    role: 'Full Stack Developer',
+    role: 'Full-Stack Developer & QA (Team)',
     categoryTag: 'SOFTWARE DEVELOPMENT',
-    description: 'Built a Laravel platform for event publishing and relational inventory tracking. Verified RBAC and session management against privilege escalation.',
+    description: 'Co-built a Laravel + MySQL campus platform across 4 modules (Wall, News, Shop, Orgs) serving 5+ student councils; verified RBAC and session isolation against privilege escalation.',
     longDescription: 'Built a Laravel-based platform where student organizations could publish announcements, promote events, and sell merchandise through an integrated marketplace. The system centralized campus information while providing secure authentication, role-based access, and product management features.',
     keyFeatures: [
       'Organization announcements & events',
@@ -43,9 +43,9 @@ export const projectsData: Project[] = [
     featured: true,
     category: 'Full Stack',
     metrics: [
-      { label: 'Role', value: 'Full-Stack & QA' },
-      { label: 'Security', value: 'RBAC Validated' },
-      { label: 'Architecture', value: 'Relational DB' },
+      { label: 'Core Modules', value: '4 (Wall/News/Shop/Orgs)' },
+      { label: 'Campus Reach', value: '5+ Student Councils' },
+      { label: 'Security QA', value: 'RBAC & Session Verified' },
     ],
     screenshots: [
       '/projects/ursachub/1.png',
@@ -59,9 +59,9 @@ export const projectsData: Project[] = [
     id: 'salo-sa-antipolo',
     title: 'SALO SA ANTIPOLO',
     subtitle: 'Restaurant Operations & Multi-Role POS',
-    role: 'Full-Stack Developer & Tester',
+    role: 'Full-Stack Developer & QA (Team)',
     categoryTag: 'FULL STACK & POS SYSTEM',
-    description: 'Developed multi-role kiosk app with real-time Firebase views for staff and billing. Validated order-state synchronization and edge cases for simultaneous ordering.',
+    description: 'Co-built a real-time Firebase POS unifying 3 role portals across a 13-table live grid with automated 12% VAT, 7% SC, and 20% Senior/PWD billing; resolved concurrent order-state race conditions.',
     longDescription: 'A comprehensive restaurant operations ecosystem featuring customer self-ordering kiosks, dynamic real-time kitchen displays, and cashier POS interfaces. Stress-tested for simultaneous multi-table order placement and concurrent inventory deduction.',
     keyFeatures: [
       'Multi-role touchscreen kiosk & cashier POS',
@@ -77,9 +77,10 @@ export const projectsData: Project[] = [
     featured: true,
     category: 'Full Stack',
     metrics: [
-      { label: 'Sync', value: 'Real-time Firebase' },
-      { label: 'Interface', value: 'Multi-Role Kiosk' },
-      { label: 'QA Scope', value: 'Concurrency Tested' },
+      { label: 'Role Portals', value: '3 (Kiosk / Cashier / Admin)' },
+      { label: 'Live Operations', value: '13-Table Real-Time Grid' },
+      { label: 'Billing Engine', value: '12% VAT + 7% SC + 20% Disc.' },
+      { label: 'QA Scope', value: 'Concurrency Race-Free' },
     ],
     screenshots: [
       '/projects/salo/1.png',
@@ -94,9 +95,9 @@ export const projectsData: Project[] = [
     id: 'ar-duino',
     title: 'AR-DUINO',
     subtitle: 'Augmented Reality Interface for Microcontrollers',
-    role: 'Lead Systems & AR Developer',
+    role: 'Lead Systems & AR Developer (Team)',
     categoryTag: 'AUGMENTED REALITY & IOT',
-    description: 'Designed a Unity 3D AR app to overlay interactive pinouts on physical hardware. Tested camera tracking latency and spatial anchor stability across varied lighting.',
+    description: 'Led Unity 3D/C# AR architecture for 4 tiered Arduino Uno R3 lab modules (incl. interactive AR RC-Car), maintaining < 25ms spatial anchor latency across varied lighting conditions.',
     longDescription: 'An interactive spatial computing developer tool that identifies physical Arduino microcontrollers via computer vision, projecting holographic 3D pinouts, signal schematics, and live pin telemetry directly onto physical hardware.',
     keyFeatures: [
       'Real-time physical hardware recognition & tracking',
@@ -112,9 +113,9 @@ export const projectsData: Project[] = [
     featured: false,
     category: 'AR & Systems',
     metrics: [
-      { label: 'Engine', value: 'Unity 3D' },
-      { label: 'Tracking', value: 'AR Foundation' },
-      { label: 'Latency', value: '< 25ms Anchor' },
+      { label: 'Lab Modules', value: '4 Tiered Arduino Labs' },
+      { label: 'Anchor Latency', value: '< 25ms Tracking' },
+      { label: 'Engine', value: 'Unity 3D + AR Foundation' },
     ],
     screenshots: [
       '/projects/arduino/1.jpg',
@@ -168,7 +169,7 @@ export const projectsData: Project[] = [
     id: 'vexlo',
     title: 'Vexlo',
     subtitle: 'Developer-first feature flag and remote configuration platform',
-    role: 'Full Stack Developer',
+    role: 'Sole Full-Stack Engineer',
     categoryTag: 'SOFTWARE DEVELOPMENT',
     description:
       'High-performance, self-hosted feature flag platform with sub-millisecond local evaluation (< 0.05ms), dual-runtime architecture (Vercel Serverless + Neon Postgres or offline Windows .exe), and deterministic MurmurHash3 rollout bucketing.',
