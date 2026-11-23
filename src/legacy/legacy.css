@@ -1,0 +1,107 @@
+/* Scoped pre-revamp (commit 2876898) styling — strictly isolated under .legacy-v1 */
+
+.legacy-v1 {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --bg-tertiary: #181818;
+  --bg-card: rgba(17, 17, 17, 0.75);
+  --text-primary: #f0f0f0;
+  --text-secondary: #909090;
+  --text-tertiary: #5a5a5a;
+  --border-primary: #222222;
+  --border-hover: rgba(0, 255, 136, 0.4);
+  --accent-neon: #00ff88;
+  --accent-neon-hover: #00cc6a;
+  --accent-neon-glow: rgba(0, 255, 136, 0.18);
+  --accent: var(--accent-neon);
+  --accent-hover: var(--accent-neon-hover);
+  --card-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.5);
+  --badge-bg: rgba(0, 255, 136, 0.08);
+  --badge-text: #00ff88;
+  --badge-border: rgba(0, 255, 136, 0.25);
+  --nav-bg: rgba(10, 10, 10, 0.85);
+  --particle-color: rgba(0, 255, 136, 0.35);
+}
+
+html:not(.dark) .legacy-v1 {
+  --bg-primary: #f6f8f6;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #edf2ee;
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --text-primary: #0e1f15;
+  --text-secondary: #3f5347;
+  --text-tertiary: #788e80;
+  --border-primary: #dce5df;
+  --border-hover: rgba(5, 150, 105, 0.4);
+  --accent-neon: #059669;
+  --accent-neon-hover: #047857;
+  --accent-neon-glow: rgba(5, 150, 105, 0.15);
+  --accent: var(--accent-neon);
+  --accent-hover: var(--accent-neon-hover);
+  --card-shadow: 0 8px 24px -4px rgba(14, 31, 21, 0.06), 0 2px 6px -1px rgba(14, 31, 21, 0.04);
+  --badge-bg: rgba(5, 150, 105, 0.1);
+  --badge-text: #047857;
+  --badge-border: rgba(5, 150, 105, 0.28);
+  --nav-bg: rgba(246, 248, 246, 0.88);
+  --particle-color: rgba(5, 150, 105, 0.2);
+}
+
+.legacy-v1 .neon-glow {
+  box-shadow: 0 0 20px var(--accent-neon-glow);
+}
+
+.legacy-v1 .neon-glow-lg {
+  box-shadow: 0 0 35px var(--accent-neon-glow), 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+.legacy-v1 .neon-text-glow {
+  text-shadow: 0 0 12px var(--accent-neon-glow);
+}
+
+.legacy-v1 .glass-card {
+  background-color: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-primary);
+}
+
+.legacy-v1 .glass-card:hover {
+  border-color: var(--border-hover);
+}
+
+.legacy-v1 .code-block {
+  background-color: #0d0d0d;
+  border: 1px solid #222222;
+  font-family: var(--font-mono);
+}
+
+html:not(.dark) .legacy-v1 .code-block {
+  background-color: #f1f5f2;
+  border-color: #dce5df;
+}
+
+.legacy-v1 dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.legacy-v1 .hobby-dialog:not([open]),
+.legacy-v1 .project-dialog:not([open]),
+.legacy-v1 .certification-dialog:not([open]) {
+  display: none;
+}
+
+.legacy-v1 .hobby-dialog[open],
+.legacy-v1 .project-dialog[open],
+.legacy-v1 .certification-dialog[open] {
+  display: flex;
+}
+
+.legacy-v1 .lightbox-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}

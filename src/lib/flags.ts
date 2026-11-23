@@ -19,5 +19,11 @@ export const vexlo = new VexloClient({
       rolloutPercentage: 100,
       rules: [],
     },
+    redesign: {
+      key: 'redesign',
+      enabled: true,
+      rolloutPercentage: 100,
+      rules: [],
+    },
   },
 });

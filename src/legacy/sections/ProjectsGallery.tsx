@@ -1,0 +1,88 @@
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
+import { ProjectCategory, Project } from '@/data/projects'
+import { SectionHeading } from '@/legacy/ui/SectionHeading'
+import { ProjectCard } from '@/legacy/ui/ProjectCard'
+import { ProjectModal } from '@/legacy/ui/ProjectModal'
+import { RevealOnScroll } from '@/legacy/ui/RevealOnScroll'
+import { useProjects } from '@/hooks/useProjects'
+
+export const ProjectsGallery: React.FC = () => {
+  const [activeFilter, setActiveFilter] = useState<ProjectCategory>('All')
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const { projects } = useProjects()
+
+  const categories: ProjectCategory[] = ['All', 'Full Stack', 'QA & Testing', 'AR & Systems']
+
+  const filteredProjects =
+    activeFilter === 'All'
+      ? projects
+      : projects.filter((p) => p.category === activeFilter)
+
+  return (
+    <section id="projects" className="py-24 sm:py-32 px-4 sm:px-6 lg:px-8 relative">
+      <div className="max-w-6xl mx-auto">
+        <RevealOnScroll>
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+            <div className="min-w-0">
+              <SectionHeading
+                title="Project Archive"
+                subtitle="Explore past systems and upcoming initiatives. Click any card to inspect full screenshot galleries and technical specifications."
+                eyebrow="SYSTEMS & LABS"
+                className="mb-0"
+              />
+            </div>
+
+            {/* Category Filter Tabs */}
+            <div className="flex flex-nowrap items-center gap-1.5 p-1.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] self-start lg:self-auto shrink-0 max-w-full overflow-x-auto">
+              {categories.map((category) => {
+                const isActive = activeFilter === category
+                return (
+                  <button
+                    key={category}
+                    onClick={() => setActiveFilter(category)}
+                    className={`relative px-3 sm:px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all duration-200 cursor-pointer min-h-[38px] select-none whitespace-nowrap shrink-0 ${
+                      isActive
+                        ? 'text-[#0a0a0a] font-bold dark:text-[#050505]'
+                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeFilterTab"
+                        className="absolute inset-0 rounded-lg bg-[var(--accent-neon)] shadow-[0_0_15px_var(--accent-neon-glow)] z-0"
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative z-10">{category}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </RevealOnScroll>
+
+        {/* Dynamic Animated Grid */}
+        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+          <AnimatePresence mode="popLayout">
+            {filteredProjects.map((project, idx) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                variant="gallery"
+                index={idx}
+                onSelect={(p) => setSelectedProject(p)}
+              />
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+
+      {/* Project Detail & Screenshot Carousel Modal */}
+      <ProjectModal
+        project={selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
+    </section>
+  )
+}
