@@ -48,3 +48,23 @@ export const isUserAdmin = (email?: string | null): boolean => {
   if (admins.length === 0) return true
   return admins.includes(email.toLowerCase())
 }
+
+export const UNAUTHORIZED_WRITE_MESSAGE =
+  "Access Denied. Nice try, you shouldn't mess with someone else's portfolio."
+
+export const formatSupabaseWriteError = (
+  error: { code?: string; message?: string; statusCode?: string | number } | null | undefined
+): Error => {
+  if (
+    error?.code === 'PGRST116' ||
+    error?.code === '42501' ||
+    Number(error?.statusCode) === 403 ||
+    /cannot coerce the result to a single json object|row-level security|permission denied|unauthorized/i.test(
+      error?.message || ''
+    )
+  ) {
+    return new Error(UNAUTHORIZED_WRITE_MESSAGE)
+  }
+
+  return new Error(error?.message || 'Operation failed.')
+}

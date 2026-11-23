@@ -1,4 +1,9 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import {
+  supabase,
+  isSupabaseConfigured,
+  formatSupabaseWriteError,
+  UNAUTHORIZED_WRITE_MESSAGE,
+} from '@/lib/supabase'
 import { Project, projectsData } from '@/data/projects'
 
 const LOCAL_STORAGE_KEY = 'prenz_portfolio_projects_cache'
@@ -148,7 +153,7 @@ export const projectsService = {
       .single()
 
     if (error) {
-      return { data: null, error: new Error(error.message) }
+      return { data: null, error: formatSupabaseWriteError(error) }
     }
 
     const mapped = mapDbToProject(data)
@@ -201,7 +206,7 @@ export const projectsService = {
       .single()
 
     if (error) {
-      return { data: null, error: new Error(error.message) }
+      return { data: null, error: formatSupabaseWriteError(error) }
     }
 
     const mapped = mapDbToProject(data)
@@ -217,9 +222,16 @@ export const projectsService = {
       return { success: true, error: null }
     }
 
-    const { error } = await supabase.from('projects').delete().eq('id', id)
+    const { data, error } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', id)
+      .select('id')
     if (error) {
-      return { success: false, error: new Error(error.message) }
+      return { success: false, error: formatSupabaseWriteError(error) }
+    }
+    if (!data || data.length === 0) {
+      return { success: false, error: new Error(UNAUTHORIZED_WRITE_MESSAGE) }
     }
 
     const current = getLocalCachedProjects().filter(p => p.id !== id)
@@ -237,7 +249,7 @@ export const projectsService = {
     const { error } = await supabase.from('projects').upsert(rows, { onConflict: 'id' })
 
     if (error) {
-      return { count: 0, error: new Error(error.message) }
+      return { count: 0, error: formatSupabaseWriteError(error) }
     }
 
     setLocalCachedProjects([...projectsData])

@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured, formatSupabaseWriteError } from '@/lib/supabase'
 
 export const storageService = {
   /**
@@ -39,7 +39,7 @@ export const storageService = {
         })
 
       if (error) {
-        return { url: null, error: new Error(error.message) }
+        return { url: null, error: formatSupabaseWriteError(error) }
       }
 
       const { data: publicUrlData } = supabase.storage

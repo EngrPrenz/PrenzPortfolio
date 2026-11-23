@@ -1,4 +1,9 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import {
+  supabase,
+  isSupabaseConfigured,
+  formatSupabaseWriteError,
+  UNAUTHORIZED_WRITE_MESSAGE,
+} from '@/lib/supabase'
 import { Hobby, getHobbyImages, serializeHobbyImages } from '@/types/hobby'
 import { hobbiesData } from '@/data/hobbies'
 
@@ -124,7 +129,7 @@ export const hobbiesService = {
       .single()
 
     if (error) {
-      return { data: null, error: new Error(error.message) }
+      return { data: null, error: formatSupabaseWriteError(error) }
     }
 
     const mapped = mapDbToHobby(data)
@@ -174,7 +179,7 @@ export const hobbiesService = {
       .single()
 
     if (error) {
-      return { data: null, error: new Error(error.message) }
+      return { data: null, error: formatSupabaseWriteError(error) }
     }
 
     const mapped = mapDbToHobby(data)
@@ -190,9 +195,16 @@ export const hobbiesService = {
       return { success: true, error: null }
     }
 
-    const { error } = await supabase.from('hobbies').delete().eq('id', id)
+    const { data, error } = await supabase
+      .from('hobbies')
+      .delete()
+      .eq('id', id)
+      .select('id')
     if (error) {
-      return { success: false, error: new Error(error.message) }
+      return { success: false, error: formatSupabaseWriteError(error) }
+    }
+    if (!data || data.length === 0) {
+      return { success: false, error: new Error(UNAUTHORIZED_WRITE_MESSAGE) }
     }
 
     const current = getLocalCachedHobbies().filter(h => h.id !== id)
@@ -211,7 +223,7 @@ export const hobbiesService = {
     const { error } = await supabase.from('hobbies').upsert(rows, { onConflict: 'id' })
 
     if (error) {
-      return { count: 0, error: new Error(error.message) }
+      return { count: 0, error: formatSupabaseWriteError(error) }
     }
 
     setLocalCachedHobbies(normalized)

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useId, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { UNAUTHORIZED_WRITE_MESSAGE } from '@/lib/supabase'
 import { projectsService } from '@/services/projectsService'
 import { hobbiesService } from '@/services/hobbiesService'
 import { Project } from '@/data/projects'
@@ -22,61 +23,12 @@ import {
   Database,
   Sparkle,
   CheckCircle,
-  Copy,
-  Check,
   MagnifyingGlass,
   Star,
-  Terminal,
 } from '@phosphor-icons/react'
 
-const SUPABASE_SQL_SNIPPET = `-- Run this in Supabase SQL Editor:
-create table if not exists public.projects (
-  id text primary key,
-  title text not null,
-  subtitle text not null default '',
-  role text not null default '',
-  category_tag text not null default 'Software Development',
-  description text not null,
-  long_description text not null default '',
-  key_features jsonb not null default '[]'::jsonb,
-  tech_stack jsonb not null default '[]'::jsonb,
-  status text not null default 'live',
-  live_url text,
-  github_url text,
-  featured boolean not null default false,
-  category text not null default 'Full Stack',
-  metrics jsonb default '[]'::jsonb,
-  screenshots jsonb not null default '[]'::jsonb,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-create table if not exists public.hobbies (
-  id text primary key,
-  title text not null,
-  category text not null default 'General',
-  icon text not null default 'Sparkle',
-  description text not null default '',
-  tags jsonb not null default '[]'::jsonb,
-  image_url text,
-  featured boolean not null default true,
-  display_order integer default 0,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-alter table public.projects enable row level security;
-alter table public.hobbies enable row level security;
-
-create policy "Public read projects" on public.projects for select using (true);
-create policy "Admin insert projects" on public.projects for insert with check (auth.role() = 'authenticated');
-create policy "Admin update projects" on public.projects for update using (auth.role() = 'authenticated');
-create policy "Admin delete projects" on public.projects for delete using (auth.role() = 'authenticated');
-
-create policy "Public read hobbies" on public.hobbies for select using (true);
-create policy "Admin insert hobbies" on public.hobbies for insert with check (auth.role() = 'authenticated');
-create policy "Admin update hobbies" on public.hobbies for update using (auth.role() = 'authenticated');
-create policy "Admin delete hobbies" on public.hobbies for delete using (auth.role() = 'authenticated');`
+const formatAdminError = (prefix: string, message: string): string =>
+  message === UNAUTHORIZED_WRITE_MESSAGE ? UNAUTHORIZED_WRITE_MESSAGE : `${prefix}: ${message}`
 
 export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -84,7 +36,7 @@ export const AdminDashboard: React.FC = () => {
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
   const deleteTitleId = useId()
 
-  const [activeTab, setActiveTab] = useState<'projects' | 'hobbies' | 'database'>('projects')
+  const [activeTab, setActiveTab] = useState<'projects' | 'hobbies'>('projects')
 
   const [projects, setProjects] = useState<Project[]>([])
   const [hobbies, setHobbies] = useState<Hobby[]>([])
@@ -111,7 +63,6 @@ export const AdminDashboard: React.FC = () => {
     message: string
     type: 'success' | 'error'
   } | null>(null)
-  const [copiedSql, setCopiedSql] = useState(false)
 
   useDialogModal(deleteDialogRef, Boolean(deleteTarget), () => setDeleteTarget(null), {
     lightDismiss: true,
@@ -158,10 +109,12 @@ export const AdminDashboard: React.FC = () => {
       const hobbyRes = await hobbiesService.seedInitialHobbies()
 
       if (projRes.error || hobbyRes.error) {
-        showToast(
-          `Seeding notice: ${projRes.error?.message || ''} ${hobbyRes.error?.message || ''}`,
-          'error'
-        )
+        const seedErrorMsg =
+          projRes.error?.message === UNAUTHORIZED_WRITE_MESSAGE ||
+          hobbyRes.error?.message === UNAUTHORIZED_WRITE_MESSAGE
+            ? UNAUTHORIZED_WRITE_MESSAGE
+            : `Seeding notice: ${projRes.error?.message || ''} ${hobbyRes.error?.message || ''}`
+        showToast(seedErrorMsg, 'error')
       } else {
         showToast(`Seeded ${projRes.count} projects and ${hobbyRes.count} hobbies.`)
       }
@@ -190,7 +143,7 @@ export const AdminDashboard: React.FC = () => {
     const updated = !project.featured
     const { error } = await projectsService.updateProject(project.id, { featured: updated })
     if (error) {
-      showToast('Failed to update featured status: ' + error.message, 'error')
+      showToast(formatAdminError('Failed to update featured status', error.message), 'error')
     } else {
       showToast(`Project "${project.title}" ${updated ? 'featured' : 'unfeatured'}`)
       await refreshData()
@@ -214,7 +167,7 @@ export const AdminDashboard: React.FC = () => {
     const updated = !hobby.featured
     const { error } = await hobbiesService.updateHobby(hobby.id, { featured: updated })
     if (error) {
-      showToast('Failed to update hobby: ' + error.message, 'error')
+      showToast(formatAdminError('Failed to update hobby', error.message), 'error')
     } else {
       showToast(`Hobby "${hobby.title}" ${updated ? 'visible' : 'hidden'}`)
       await refreshData()
@@ -224,22 +177,18 @@ export const AdminDashboard: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return
 
-    if (deleteTarget.type === 'project') {
-      const { error } = await projectsService.deleteProject(deleteTarget.id)
-      if (error) {
-        showToast('Failed to delete project: ' + error.message, 'error')
-      } else {
-        showToast(`Project "${deleteTarget.title}" deleted`)
-        await refreshData()
-      }
+    const { error } =
+      deleteTarget.type === 'project'
+        ? await projectsService.deleteProject(deleteTarget.id)
+        : await hobbiesService.deleteHobby(deleteTarget.id)
+
+    if (error) {
+      showToast(formatAdminError(`Failed to delete ${deleteTarget.type}`, error.message), 'error')
     } else {
-      const { error } = await hobbiesService.deleteHobby(deleteTarget.id)
-      if (error) {
-        showToast('Failed to delete hobby: ' + error.message, 'error')
-      } else {
-        showToast(`Hobby "${deleteTarget.title}" deleted`)
-        await refreshData()
-      }
+      showToast(
+        `${deleteTarget.type === 'project' ? 'Project' : 'Hobby'} "${deleteTarget.title}" deleted`
+      )
+      await refreshData()
     }
     setDeleteTarget(null)
   }
@@ -425,21 +374,6 @@ export const AdminDashboard: React.FC = () => {
               >
                 {hobbies.length}
               </span>
-            </button>
-
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'database'}
-              onClick={() => setActiveTab('database')}
-              className={`inline-flex items-center gap-2 px-4 py-2 min-h-[42px] rounded-lg text-xs font-medium transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${
-                activeTab === 'database'
-                  ? 'bg-[var(--accent)] text-[var(--accent-ink)] shadow-[var(--button-specular)] font-semibold'
-                  : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-primary)]'
-              }`}
-            >
-              <Terminal size={16} aria-hidden="true" />
-              <span>Database Setup</span>
             </button>
           </div>
 
@@ -773,105 +707,6 @@ export const AdminDashboard: React.FC = () => {
                 })}
               </div>
             )}
-          </div>
-        )}
-
-        {/* Database Setup Tab */}
-        {activeTab === 'database' && (
-          <div className="surface-card rounded-xl p-6 sm:p-8 space-y-6">
-            <div>
-              <h2 className="font-display text-xl font-bold text-[var(--text-primary)]">
-                Supabase PostgreSQL &amp; Storage Setup
-              </h2>
-              <p className="text-sm text-[var(--text-secondary)] mt-1 leading-relaxed">
-                Connect your Supabase database to persist projects and hobbies across visitors.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border-t border-[var(--border-primary)] pt-6">
-              <div className="space-y-1.5">
-                <h3 className="font-semibold text-sm text-[var(--text-primary)]">
-                  Create Supabase Project
-                </h3>
-                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                  Provision a free PostgreSQL project at{' '}
-                  <a
-                    href="https://supabase.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[var(--accent)] underline"
-                  >
-                    supabase.com
-                  </a>
-                  .
-                </p>
-              </div>
-
-              <div className="space-y-1.5">
-                <h3 className="font-semibold text-sm text-[var(--text-primary)]">
-                  Run SQL Schema
-                </h3>
-                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                  Open the SQL Editor in Supabase, paste the schema from{' '}
-                  <code className="font-mono text-[var(--text-primary)]">supabase_schema.sql</code>,
-                  and execute it.
-                </p>
-              </div>
-
-              <div className="space-y-1.5">
-                <h3 className="font-semibold text-sm text-[var(--text-primary)]">
-                  Configure Environment Keys
-                </h3>
-                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                  Add your Project URL, Anon Key, and allowed admin emails to{' '}
-                  <code className="font-mono text-[var(--text-primary)]">.env</code>.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2.5 pt-4 border-t border-[var(--border-primary)]">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-xs font-semibold text-[var(--text-primary)]">
-                  PostgreSQL Schema &amp; RLS Policies (supabase_schema.sql)
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(SUPABASE_SQL_SNIPPET)
-                    setCopiedSql(true)
-                    setTimeout(() => setCopiedSql(false), 3000)
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg bg-[var(--bg-primary)] hover:border-[var(--border-hover)] border border-[var(--border-primary)] text-xs font-medium text-[var(--text-primary)] transition-colors cursor-pointer"
-                >
-                  {copiedSql ? (
-                    <>
-                      <Check size={14} className="text-[var(--accent)]" aria-hidden="true" />
-                      <span>Copied</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy size={14} aria-hidden="true" />
-                      <span>Copy SQL</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              <pre className="code-block p-4 rounded-lg text-xs text-[var(--text-secondary)] overflow-x-auto max-h-56 leading-relaxed">
-                <code>{`-- Open Supabase Dashboard > SQL Editor > New Query\n-- Paste the copied SQL (or ./supabase_schema.sql) and run.`}</code>
-              </pre>
-            </div>
-
-            <div className="space-y-2 pt-4 border-t border-[var(--border-primary)]">
-              <span className="text-xs font-semibold text-[var(--text-primary)] block">
-                Environment Variables (.env)
-              </span>
-              <pre className="code-block p-4 rounded-lg text-xs text-[var(--accent)] overflow-x-auto">
-{`VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key-here
-VITE_ADMIN_EMAILS=your.email@gmail.com`}
-              </pre>
-            </div>
           </div>
         )}
       </main>
