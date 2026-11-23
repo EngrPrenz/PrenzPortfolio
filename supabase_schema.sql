@@ -19,6 +19,7 @@ create table if not exists public.projects (
   live_url text,
   github_url text,
   featured boolean not null default false,
+  display_order integer not null default 0,
   category text not null default 'Full Stack',
   metrics jsonb default '[]'::jsonb,
   screenshots jsonb not null default '[]'::jsonb,

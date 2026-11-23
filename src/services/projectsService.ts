@@ -42,6 +42,7 @@ const mapDbToProject = (row: any): Project => {
     liveUrl: row.live_url || undefined,
     githubUrl: row.github_url || undefined,
     featured: Boolean(row.featured),
+    displayOrder: typeof row.display_order === 'number' ? row.display_order : 0,
     category: row.category || 'Full Stack',
     metrics: Array.isArray(row.metrics) ? row.metrics : [],
     screenshots: rawScreenshots
@@ -65,11 +66,18 @@ const mapProjectToDb = (project: Project): any => ({
   live_url: project.liveUrl || null,
   github_url: project.githubUrl || null,
   featured: project.featured,
+  display_order: project.displayOrder ?? 0,
   category: project.category,
   metrics: project.metrics || [],
   screenshots: (project.screenshots || []).map((s) => normalizeScreenshotUrl(s, project)),
   updated_at: new Date().toISOString(),
 })
+
+const sortProjectsByOrder = (list: Project[]): Project[] =>
+  [...list].sort((a, b) => (a.displayOrder ?? 9999) - (b.displayOrder ?? 9999))
+
+const isMissingDisplayOrderColumn = (error: { code?: string; message?: string } | null | undefined) =>
+  error?.code === '42703' || /display_order/i.test(error?.message || '')
 
 export const getLocalCachedProjects = (): Project[] => {
   try {
@@ -77,20 +85,22 @@ export const getLocalCachedProjects = (): Project[] => {
     if (cached) {
       const parsed = JSON.parse(cached)
       if (Array.isArray(parsed)) {
-        return parsed.map((p: Project) => ({
-          ...p,
-          screenshots: Array.isArray(p.screenshots)
-            ? p.screenshots
-                .filter((s: unknown): s is string => typeof s === 'string' && s.trim().length > 0)
-                .map((s: string) => normalizeScreenshotUrl(s, p))
-            : [],
-        }))
+        return sortProjectsByOrder(
+          parsed.map((p: Project) => ({
+            ...p,
+            screenshots: Array.isArray(p.screenshots)
+              ? p.screenshots
+                  .filter((s: unknown): s is string => typeof s === 'string' && s.trim().length > 0)
+                  .map((s: string) => normalizeScreenshotUrl(s, p))
+              : [],
+          }))
+        )
       }
     }
   } catch (err) {
     console.warn('Failed reading from localStorage', err)
   }
-  return [...projectsData]
+  return sortProjectsByOrder([...projectsData])
 }
 
 export const setLocalCachedProjects = (projects: Project[]): void => {
@@ -108,10 +118,20 @@ export const projectsService = {
     }
 
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('projects')
         .select('*')
+        .order('display_order', { ascending: true })
         .order('created_at', { ascending: false })
+
+      if (error && isMissingDisplayOrderColumn(error)) {
+        const fallback = await supabase
+          .from('projects')
+          .select('*')
+          .order('created_at', { ascending: false })
+        data = fallback.data
+        error = fallback.error
+      }
 
       if (error) {
         console.warn('Supabase fetch failed, using local/static fallback:', error.message)
@@ -189,6 +209,7 @@ export const projectsService = {
     if (updates.liveUrl !== undefined) dbPayload.live_url = updates.liveUrl || null
     if (updates.githubUrl !== undefined) dbPayload.github_url = updates.githubUrl || null
     if (updates.featured !== undefined) dbPayload.featured = updates.featured
+    if (updates.displayOrder !== undefined) dbPayload.display_order = updates.displayOrder
     if (updates.category !== undefined) dbPayload.category = updates.category
     if (updates.metrics !== undefined) dbPayload.metrics = updates.metrics
     if (updates.screenshots !== undefined) {
@@ -254,5 +275,49 @@ export const projectsService = {
 
     setLocalCachedProjects([...projectsData])
     return { count: rows.length, error: null }
+  },
+
+  async reorderProjects(orderedProjects: Project[]): Promise<{ error: Error | null }> {
+    const normalized = orderedProjects.map((project, index) => ({
+      ...project,
+      displayOrder: index + 1,
+    }))
+
+    if (!isSupabaseConfigured()) {
+      setLocalCachedProjects(normalized)
+      window.dispatchEvent(new Event('prenz_projects_updated'))
+      return { error: null }
+    }
+
+    const now = new Date().toISOString()
+    const results = await Promise.all(
+      normalized.map((project) =>
+        supabase
+          .from('projects')
+          .update({ display_order: project.displayOrder, updated_at: now })
+          .eq('id', project.id)
+          .select('id')
+      )
+    )
+
+    for (const res of results) {
+      if (res.error) {
+        if (isMissingDisplayOrderColumn(res.error)) {
+          return {
+            error: new Error(
+              'Run "alter table public.projects add column if not exists display_order integer not null default 0;" in Supabase SQL Editor first.'
+            ),
+          }
+        }
+        return { error: formatSupabaseWriteError(res.error) }
+      }
+      if (!res.data || res.data.length === 0) {
+        return { error: new Error(UNAUTHORIZED_WRITE_MESSAGE) }
+      }
+    }
+
+    setLocalCachedProjects(normalized)
+    window.dispatchEvent(new Event('prenz_projects_updated'))
+    return { error: null }
   },
 }

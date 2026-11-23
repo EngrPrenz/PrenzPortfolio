@@ -231,7 +231,7 @@ export const AdminLogin: React.FC = () => {
                   onClick={handleDevBypass}
                   className="text-xs text-[var(--text-tertiary)] hover:text-[var(--accent)] transition-colors underline cursor-pointer min-h-[36px] px-2"
                 >
-                  Developer quick bypass
+                  Demo Mode bypass
                 </button>
               </div>
             )}

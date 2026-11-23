@@ -25,6 +25,8 @@ import {
   CheckCircle,
   MagnifyingGlass,
   Star,
+  ArrowUp,
+  ArrowDown,
 } from '@phosphor-icons/react'
 
 const formatAdminError = (prefix: string, message: string): string =>
@@ -59,6 +61,7 @@ export const AdminDashboard: React.FC = () => {
   } | null>(null)
 
   const [seeding, setSeeding] = useState(false)
+  const [reordering, setReordering] = useState(false)
   const [notification, setNotification] = useState<{
     message: string
     type: 'success' | 'error'
@@ -137,6 +140,70 @@ export const AdminDashboard: React.FC = () => {
       showToast(`Created project "${projectData.title}"`)
     }
     await refreshData()
+  }
+
+  const canReorderProjects = categoryFilter === 'All' && !projectSearch.trim()
+  const canReorderHobbies = hobbyCategoryFilter === 'All'
+
+  const reorderItems = async <T extends { id: string }>(
+    items: T[],
+    index: number,
+    direction: -1 | 1,
+    setItems: React.Dispatch<React.SetStateAction<T[]>>,
+    assignOrder: (item: T, order: number) => T,
+    persist: (ordered: T[]) => Promise<{ error: Error | null }>,
+    label: 'projects' | 'hobbies'
+  ) => {
+    const targetIndex = index + direction
+    if (reordering || targetIndex < 0 || targetIndex >= items.length) return
+
+    const previous = items
+    const swapped = [...items]
+    ;[swapped[index], swapped[targetIndex]] = [swapped[targetIndex], swapped[index]]
+    const nextList = swapped.map((item, i) => assignOrder(item, i + 1))
+
+    setItems(nextList)
+    setReordering(true)
+    try {
+      const { error } = await persist(nextList)
+      if (error) {
+        setItems(previous)
+        showToast(formatAdminError(`Failed to reorder ${label}`, error.message), 'error')
+      } else {
+        showToast(`${label === 'projects' ? 'Project' : 'Hobby'} order updated`)
+      }
+    } catch (err: any) {
+      setItems(previous)
+      showToast(formatAdminError(`Failed to reorder ${label}`, err.message), 'error')
+    } finally {
+      setReordering(false)
+    }
+  }
+
+  const handleMoveProject = (index: number, direction: -1 | 1) => {
+    if (!canReorderProjects) return
+    void reorderItems(
+      projects,
+      index,
+      direction,
+      setProjects,
+      (item, order) => ({ ...item, displayOrder: order }),
+      projectsService.reorderProjects,
+      'projects'
+    )
+  }
+
+  const handleMoveHobby = (index: number, direction: -1 | 1) => {
+    if (!canReorderHobbies) return
+    void reorderItems(
+      hobbies,
+      index,
+      direction,
+      setHobbies,
+      (item, order) => ({ ...item, displayOrder: order }),
+      hobbiesService.reorderHobbies,
+      'hobbies'
+    )
   }
 
   const handleToggleProjectFeatured = async (project: Project) => {
@@ -460,7 +527,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-3">
-                {filteredProjects.map((p) => (
+                {filteredProjects.map((p, idx) => (
                   <div
                     key={p.id}
                     className="surface-card-interactive rounded-xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
@@ -482,6 +549,9 @@ export const AdminDashboard: React.FC = () => {
 
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-xs font-mono text-[var(--text-tertiary)] tabular-nums">
+                            #{p.displayOrder && p.displayOrder > 0 ? p.displayOrder : idx + 1}
+                          </span>
                           <h2 className="font-display font-bold text-base text-[var(--text-primary)] truncate">
                             {p.title}
                           </h2>
@@ -513,7 +583,30 @@ export const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-end gap-2 pt-3 md:pt-0 border-t md:border-t-0 border-[var(--border-primary)]">
+                    <div className="flex flex-wrap items-center justify-end gap-2 pt-3 md:pt-0 border-t md:border-t-0 border-[var(--border-primary)] shrink-0">
+                      <div className="inline-flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleMoveProject(idx, -1)}
+                          disabled={!canReorderProjects || reordering || idx === 0}
+                          aria-label={`Move ${p.title} up`}
+                          title={canReorderProjects ? 'Move up' : 'Clear search/filter to reorder'}
+                          className="p-2 min-h-[38px] min-w-[38px] rounded-lg bg-[var(--bg-primary)] hover:bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer inline-flex items-center justify-center disabled:opacity-35 disabled:cursor-not-allowed"
+                        >
+                          <ArrowUp size={14} weight="bold" aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMoveProject(idx, 1)}
+                          disabled={!canReorderProjects || reordering || idx === filteredProjects.length - 1}
+                          aria-label={`Move ${p.title} down`}
+                          title={canReorderProjects ? 'Move down' : 'Clear search/filter to reorder'}
+                          className="p-2 min-h-[38px] min-w-[38px] rounded-lg bg-[var(--bg-primary)] hover:bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer inline-flex items-center justify-center disabled:opacity-35 disabled:cursor-not-allowed"
+                        >
+                          <ArrowDown size={14} weight="bold" aria-hidden="true" />
+                        </button>
+                      </div>
+
                       <button
                         type="button"
                         onClick={() => handleToggleProjectFeatured(p)}
@@ -614,7 +707,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredHobbies.map((h) => {
+                {filteredHobbies.map((h, idx) => {
                   const photoCount = getHobbyImages(h).length
                   return (
                     <div
@@ -685,11 +778,37 @@ export const AdminDashboard: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pt-3 border-t border-[var(--border-primary)] text-xs font-mono text-[var(--text-tertiary)] tabular-nums">
-                        <span>
-                          Order #{h.displayOrder ?? 0} / {photoCount}{' '}
-                          {photoCount === 1 ? 'photo' : 'photos'}
-                        </span>
+                      <div className="flex items-center justify-between gap-2 pt-3 border-t border-[var(--border-primary)] text-xs font-mono text-[var(--text-tertiary)] tabular-nums">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="inline-flex items-center gap-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleMoveHobby(idx, -1)}
+                              disabled={!canReorderHobbies || reordering || idx === 0}
+                              aria-label={`Move ${h.title} up`}
+                              title={canReorderHobbies ? 'Move up' : 'Select All category to reorder'}
+                              className="p-1.5 min-h-[34px] min-w-[34px] rounded-md bg-[var(--bg-primary)] hover:bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer inline-flex items-center justify-center disabled:opacity-35 disabled:cursor-not-allowed"
+                            >
+                              <ArrowUp size={13} weight="bold" aria-hidden="true" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMoveHobby(idx, 1)}
+                              disabled={
+                                !canReorderHobbies || reordering || idx === filteredHobbies.length - 1
+                              }
+                              aria-label={`Move ${h.title} down`}
+                              title={canReorderHobbies ? 'Move down' : 'Select All category to reorder'}
+                              className="p-1.5 min-h-[34px] min-w-[34px] rounded-md bg-[var(--bg-primary)] hover:bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer inline-flex items-center justify-center disabled:opacity-35 disabled:cursor-not-allowed"
+                            >
+                              <ArrowDown size={13} weight="bold" aria-hidden="true" />
+                            </button>
+                          </div>
+                          <span className="truncate">
+                            Order #{h.displayOrder ?? idx + 1} / {photoCount}{' '}
+                            {photoCount === 1 ? 'photo' : 'photos'}
+                          </span>
+                        </div>
                         <button
                           type="button"
                           onClick={() => handleToggleHobbyFeatured(h)}

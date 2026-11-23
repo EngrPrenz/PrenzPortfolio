@@ -15,6 +15,7 @@ export interface Project {
   liveUrl?: string
   githubUrl?: string
   featured: boolean
+  displayOrder?: number
   category: ProjectCategory
   metrics?: { label: string; value: string }[]
   screenshots: string[]
@@ -61,6 +62,7 @@ export const projectsData: Project[] = [
     liveUrl: 'https://vexlo-zeta.vercel.app/',
     githubUrl: 'https://github.com/EngrPrenz/Vexlo',
     featured: true,
+    displayOrder: 1,
     category: 'Full Stack',
     metrics: [
       { label: 'Evaluation', value: '< 0.05ms local' },
@@ -98,6 +100,7 @@ export const projectsData: Project[] = [
     liveUrl: 'https://salo-sa-antipolo.web.app',
     githubUrl: 'https://github.com/EngrPrenz',
     featured: true,
+    displayOrder: 2,
     category: 'Full Stack',
     metrics: [
       { label: 'Role Portals', value: '3 (Kiosk / Cashier / Admin)' },
@@ -135,6 +138,7 @@ export const projectsData: Project[] = [
     liveUrl: 'https://ursachub.onrender.com',
     githubUrl: 'https://github.com/EngrPrenz',
     featured: true,
+    displayOrder: 3,
     category: 'Full Stack',
     metrics: [
       { label: 'Core Modules', value: '4 (Wall / News / Shop / Orgs)' },
@@ -171,6 +175,7 @@ export const projectsData: Project[] = [
     liveUrl: 'https://ar-duino-website.vercel.app',
     githubUrl: 'https://github.com/EngrPrenz',
     featured: false,
+    displayOrder: 4,
     category: 'AR & Systems',
     metrics: [
       { label: 'Lab Modules', value: '4 Tiered Arduino Labs' },
@@ -210,6 +215,7 @@ export const projectsData: Project[] = [
     liveUrl: 'https://grindon-da126.web.app',
     githubUrl: 'https://github.com/EngrPrenz',
     featured: false,
+    displayOrder: 5,
     category: 'QA & Testing',
     metrics: [
       { label: 'QA Coverage', value: 'Boundary & Usability' },

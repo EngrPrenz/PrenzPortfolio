@@ -30,6 +30,9 @@ export const ProjectsGallery: React.FC<ProjectsGalleryProps> = ({ onSelectProjec
   const orderedProjects = useMemo(() => {
     return [...projects].sort((a, b) => {
       if (a.featured !== b.featured) return a.featured ? -1 : 1
+      const aOrder = a.displayOrder && a.displayOrder > 0 ? a.displayOrder : Number.MAX_SAFE_INTEGER
+      const bOrder = b.displayOrder && b.displayOrder > 0 ? b.displayOrder : Number.MAX_SAFE_INTEGER
+      if (aOrder !== bOrder) return aOrder - bOrder
       const aRank = FLAGSHIP_PRIORITY.indexOf(a.id)
       const bRank = FLAGSHIP_PRIORITY.indexOf(b.id)
       if (aRank !== -1 && bRank !== -1) return aRank - bRank

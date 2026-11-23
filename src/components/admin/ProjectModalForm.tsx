@@ -39,6 +39,7 @@ export const ProjectModalForm: React.FC<ProjectModalFormProps> = ({
   const [category, setCategory] = useState<ProjectCategory>('Full Stack')
   const [status, setStatus] = useState<ProjectStatus>('live')
   const [featured, setFeatured] = useState(false)
+  const [displayOrder, setDisplayOrder] = useState(0)
   const [description, setDescription] = useState('')
   const [longDescription, setLongDescription] = useState('')
   const [liveUrl, setLiveUrl] = useState('')
@@ -74,6 +75,7 @@ export const ProjectModalForm: React.FC<ProjectModalFormProps> = ({
       setCategory(project.category || 'Full Stack')
       setStatus(project.status || 'live')
       setFeatured(Boolean(project.featured))
+      setDisplayOrder(project.displayOrder ?? 0)
       setDescription(project.description || '')
       setLongDescription(project.longDescription || '')
       setLiveUrl(project.liveUrl || '')
@@ -91,6 +93,7 @@ export const ProjectModalForm: React.FC<ProjectModalFormProps> = ({
       setCategory('Full Stack')
       setStatus('live')
       setFeatured(false)
+      setDisplayOrder(0)
       setDescription('')
       setLongDescription('')
       setLiveUrl('')
@@ -209,6 +212,7 @@ export const ProjectModalForm: React.FC<ProjectModalFormProps> = ({
       category,
       status,
       featured,
+      displayOrder: Number(displayOrder) || 0,
       description: description.trim(),
       longDescription: longDescription.trim() || description.trim(),
       keyFeatures,
@@ -326,7 +330,7 @@ export const ProjectModalForm: React.FC<ProjectModalFormProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-primary)]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 p-4 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-primary)]">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-[var(--text-secondary)]">
                   Category
@@ -372,6 +376,18 @@ export const ProjectModalForm: React.FC<ProjectModalFormProps> = ({
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-[var(--text-secondary)]">
+                  Display Order
+                </label>
+                <input
+                  type="number"
+                  value={displayOrder}
+                  onChange={(e) => setDisplayOrder(parseInt(e.target.value, 10) || 0)}
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg py-2 px-2.5 text-xs text-[var(--text-primary)] font-mono tabular-nums focus:border-[var(--accent)] focus:outline-none"
+                />
               </div>
 
               <div className="flex items-end pb-2">

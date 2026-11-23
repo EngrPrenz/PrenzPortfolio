@@ -55,19 +55,22 @@ const mapHobbyToDb = (hobby: Hobby): any => {
   }
 }
 
+const sortHobbiesByOrder = (list: Hobby[]): Hobby[] =>
+  [...list].sort((a, b) => (a.displayOrder ?? 9999) - (b.displayOrder ?? 9999))
+
 export const getLocalCachedHobbies = (): Hobby[] => {
   try {
     const cached = localStorage.getItem(LOCAL_STORAGE_KEY)
     if (cached) {
       const parsed = JSON.parse(cached)
       if (Array.isArray(parsed)) {
-        return parsed.map(normalizeHobby)
+        return sortHobbiesByOrder(parsed.map(normalizeHobby))
       }
     }
   } catch (err) {
     console.warn('Failed reading hobbies from localStorage', err)
   }
-  return hobbiesData.map(normalizeHobby)
+  return sortHobbiesByOrder(hobbiesData.map(normalizeHobby))
 }
 
 export const setLocalCachedHobbies = (hobbies: Hobby[]): void => {
@@ -228,5 +231,44 @@ export const hobbiesService = {
 
     setLocalCachedHobbies(normalized)
     return { count: rows.length, error: null }
+  },
+
+  async reorderHobbies(orderedHobbies: Hobby[]): Promise<{ error: Error | null }> {
+    const normalized = orderedHobbies.map((hobby, index) =>
+      normalizeHobby({
+        ...hobby,
+        displayOrder: index + 1,
+      })
+    )
+
+    if (!isSupabaseConfigured()) {
+      setLocalCachedHobbies(normalized)
+      window.dispatchEvent(new Event('prenz_hobbies_updated'))
+      return { error: null }
+    }
+
+    const now = new Date().toISOString()
+    const results = await Promise.all(
+      normalized.map((hobby) =>
+        supabase
+          .from('hobbies')
+          .update({ display_order: hobby.displayOrder, updated_at: now })
+          .eq('id', hobby.id)
+          .select('id')
+      )
+    )
+
+    for (const res of results) {
+      if (res.error) {
+        return { error: formatSupabaseWriteError(res.error) }
+      }
+      if (!res.data || res.data.length === 0) {
+        return { error: new Error(UNAUTHORIZED_WRITE_MESSAGE) }
+      }
+    }
+
+    setLocalCachedHobbies(normalized)
+    window.dispatchEvent(new Event('prenz_hobbies_updated'))
+    return { error: null }
   },
 }
