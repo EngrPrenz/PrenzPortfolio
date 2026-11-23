@@ -1,353 +1,168 @@
 import React, { useState } from 'react'
-import {
-  FileText,
-  CheckCircle,
-  ArrowRight,
-  User,
-  Sparkle,
-  Cpu,
-  GameController,
-  Cube,
-  Camera,
-  MusicNotes,
-  Wrench,
-  Globe,
-  DeviceMobile,
-  Guitar,
-  Motorcycle,
-  Images,
-  ArrowsOutSimple,
-} from '@phosphor-icons/react'
-import { motion, AnimatePresence } from 'motion/react'
+import { Check, FileText, ArrowUpRight } from '@phosphor-icons/react'
 import { SectionHeading } from '@/components/ui/SectionHeading'
-import { StatsCard } from '@/components/ui/StatsCard'
-import { GlowButton } from '@/components/ui/GlowButton'
-import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
 import { HobbyModal } from '@/components/ui/HobbyModal'
+import { HobbyIcon } from '@/components/ui/HobbyIcon'
 import { useHobbies } from '@/hooks/useHobbies'
 import { Hobby, getHobbyImages } from '@/types/hobby'
 
+const ENGINEERING_PRACTICES = [
+  'Full-stack web applications with React, TypeScript, Laravel, Node.js, and relational or real-time databases',
+  'Systematic QA workflows covering RBAC isolation, boundary-value analysis, and concurrent order stress tests',
+  'Spatial and hardware-adjacent builds using Unity 3D, AR Foundation, and Arduino microcontrollers',
+]
+
+const PROFILE_FACTS = [
+  { label: 'Education', value: 'B.S. Computer Engineering, Class of 2027' },
+  { label: 'Primary Focus', value: 'Full-Stack Engineering & Software QA' },
+  { label: 'Availability', value: 'Open to internships & junior engineering roles' },
+  { label: 'Location', value: 'Philippines (UTC+8)' },
+]
+
 export const About: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'bio' | 'hobbies'>('bio')
   const [selectedHobby, setSelectedHobby] = useState<Hobby | null>(null)
   const { hobbies } = useHobbies()
 
   const visibleHobbies = hobbies.filter((h) => h.featured !== false)
 
-  const highlights = [
-    'Building robust full-stack web platforms with Laravel, React & Firebase',
-    'Executing thorough QA strategies: boundary-value, RBAC & stress tests',
-    'Explored AR systems & microcontroller hardware interfaces with Unity 3D',
-    'Pursuing a B.S. in Computer Engineering (Graduating 2027)',
-  ]
-
-  const renderHobbyIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'Cpu':
-        return <Cpu size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
-      case 'Circuitry':
-        return <Cpu size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
-      case 'GameController':
-        return <GameController size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
-      case 'Cube':
-        return <Cube size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
-      case 'Wrench':
-        return <Wrench size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
-      case 'Camera':
-        return <Camera size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
-      case 'MusicNotes':
-        return <MusicNotes size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
-      case 'Guitar':
-        return <Guitar size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
-      case 'Motorcycle':
-        return <Motorcycle size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
-      case 'Globe':
-        return <Globe size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
-      case 'DeviceMobile':
-        return <DeviceMobile size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
-      default:
-        if (iconName && iconName.length <= 4) {
-          return <span aria-hidden="true" className="text-xl">{iconName}</span>
-        }
-        return <Sparkle size={22} aria-hidden="true" className="text-[var(--accent-neon)]" />
-    }
-  }
-
   return (
-    <section id="about" className="py-24 sm:py-32 px-4 sm:px-6 lg:px-8 relative">
-      <div className="max-w-6xl mx-auto">
-        <RevealOnScroll>
-          <SectionHeading
-            title="Behind the Code"
-            subtitle="Bridging software engineering, rigorous testing, and interactive systems."
-            eyebrow="ABOUT ME"
-          />
-        </RevealOnScroll>
+    <section
+      id="about"
+      className="section-studio-light py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-[var(--border-primary)] bg-[var(--bg-secondary)]/35"
+    >
+      <div className="relative z-10 max-w-6xl mx-auto">
+        {/* Editorial Bio + Border-Separated Engineering Summary Rail */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+          <div className="lg:col-span-7">
+            <SectionHeading
+              title="About"
+              subtitle="Engineering full-stack systems with the same care for edge cases and reliability as for the interface."
+              className="mb-6"
+            />
 
-        {/* Interactive Sub-Panel Tab Switcher */}
-        <RevealOnScroll delay={0.1}>
-          <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] w-fit mb-8 mt-2">
-            <button
-              onClick={() => setActiveTab('bio')}
-              className={`relative flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-mono font-medium transition-all duration-200 cursor-pointer select-none ${
-                activeTab === 'bio'
-                  ? 'text-[#0a0a0a] font-bold dark:text-[#050505]'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              {activeTab === 'bio' && (
-                <motion.div
-                  layoutId="aboutSubTabIndicator"
-                  className="absolute inset-0 rounded-xl bg-[var(--accent-neon)] shadow-[0_0_15px_var(--accent-neon-glow)] z-0"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                />
-              )}
-              <User size={16} className="relative z-10" />
-              <span className="relative z-10">Engineering Journey</span>
-            </button>
+            <div className="space-y-4 text-base text-[var(--text-secondary)] leading-relaxed max-w-[62ch]">
+              <p>
+                I am Prince Psalm Vivaz, a Computer Engineering student focused on building maintainable full-stack applications and verifying how they behave under real constraints.
+              </p>
+              <p>
+                Whether enforcing role-based access in Laravel, eliminating race conditions in a real-time Firebase POS, or keeping local feature-flag evaluation under 0.05ms in Vexlo, I aim to ship code that is clear to read and proven before release.
+              </p>
+            </div>
 
-            <button
-              onClick={() => setActiveTab('hobbies')}
-              className={`relative flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-mono font-medium transition-all duration-200 cursor-pointer select-none ${
-                activeTab === 'hobbies'
-                  ? 'text-[#0a0a0a] font-bold dark:text-[#050505]'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              {activeTab === 'hobbies' && (
-                <motion.div
-                  layoutId="aboutSubTabIndicator"
-                  className="absolute inset-0 rounded-xl bg-[var(--accent-neon)] shadow-[0_0_15px_var(--accent-neon-glow)] z-0"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                />
-              )}
-              <Sparkle size={16} className="relative z-10" />
-              <span className="relative z-10">Interests & Hobbies</span>
-              <span
-                className={`relative z-10 px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
-                  activeTab === 'hobbies'
-                    ? 'bg-black/20 text-black font-bold'
-                    : 'bg-[var(--bg-tertiary)] text-[var(--accent-neon)]'
-                }`}
-              >
-                {visibleHobbies.length}
-              </span>
-            </button>
+            <ul className="mt-6 space-y-2.5 max-w-[62ch]">
+              {ENGINEERING_PRACTICES.map((item) => (
+                <li
+                  key={item}
+                  className="flex items-start gap-2.5 text-sm text-[var(--text-primary)] leading-relaxed"
+                >
+                  <Check
+                    size={16}
+                    weight="bold"
+                    className="text-[var(--accent)] shrink-0 mt-1"
+                    aria-hidden="true"
+                  />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-        </RevealOnScroll>
 
-        {/* Content Display */}
-        <AnimatePresence mode="wait">
-          {activeTab === 'bio' ? (
-            <motion.div
-              key="bio-tab"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center"
-            >
-              {/* Left Column: Bio & Highlights */}
-              <div className="lg:col-span-7 space-y-6">
-                <div>
-                  <div className="p-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-primary)] inline-block">
-                    <span className="text-xs font-mono text-[var(--text-tertiary)] uppercase tracking-wider block">
-                      Official Name
-                    </span>
-                    <span className="text-xl sm:text-2xl font-bold font-mono text-[var(--accent-neon)] tracking-tight">
-                      Prince Psalm Vivaz
-                    </span>
-                  </div>
+          {/* Right Column: Clean Border-Separated Fact Rail (zero fake terminal chrome) */}
+          <aside className="lg:col-span-5 lg:pt-2">
+            <dl className="border-t border-[var(--border-primary)] divide-y divide-[var(--border-primary)]">
+              {PROFILE_FACTS.map((fact) => (
+                <div key={fact.label} className="py-4 flex flex-col gap-1">
+                  <dt className="text-xs font-mono text-[var(--text-tertiary)] uppercase tracking-wider">
+                    {fact.label}
+                  </dt>
+                  <dd className="text-sm sm:text-base font-medium text-[var(--text-primary)]">
+                    {fact.value}
+                  </dd>
                 </div>
+              ))}
+            </dl>
 
-                <p className="text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed">
-                  I am a Computer Engineering student (Class of 2027) with a deep passion for
-                  architecting full-stack web applications and engineering resilient, software solutions.
-                </p>
+            <div className="pt-5 border-t border-[var(--border-primary)]">
+              <a
+                href="/resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--accent)] hover:underline min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] rounded-md"
+              >
+                <FileText size={18} weight="regular" aria-hidden="true" />
+                <span>View Resume</span>
+                <ArrowUpRight size={15} weight="bold" aria-hidden="true" />
+              </a>
+            </div>
+          </aside>
+        </div>
 
-                <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
-                  Whether implementing role-based access control in Laravel, designing real-time
-                  Firebase POS kiosk applications, or analyzing camera latency for hardware-tracking AR
-                  in Unity, my goal is always the same: write clean, maintainable code and test it
-                  thoroughly before it hits production.
-                </p>
+        {/* Inline Photo-Led Hobbies Strip */}
+        {visibleHobbies.length > 0 && (
+          <div className="mt-16 pt-12 border-t border-[var(--border-primary)]">
+            <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-6">
+              <h3 className="font-display text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
+                Outside of Engineering
+              </h3>
+              <p className="text-sm text-[var(--text-secondary)]">
+                Hardware tinkering, guitar, ranked gaming, and weekend rides. Select any photo to open the gallery.
+              </p>
+            </div>
 
-                {/* Core Competencies Checklist */}
-                <div className="space-y-3 pt-2">
-                  {highlights.map((item, idx) => (
-                    <div key={idx} className="flex items-start gap-3 text-sm text-[var(--text-primary)]">
-                      <CheckCircle
-                        size={18}
-                        weight="fill"
-                        className="text-[var(--accent-neon)] shrink-0 mt-0.5"
-                      />
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {visibleHobbies.map((hobby) => {
+                const hobbyImages = getHobbyImages(hobby)
+                const coverImage = hobbyImages[0]
 
-                {/* Actions */}
-                <div className="flex flex-wrap items-center gap-4 pt-4">
-                  <GlowButton
-                    variant="outline"
-                    size="md"
-                    href="#contact"
-                    icon={<ArrowRight size={18} />}
-                  >
-                    Work With Me
-                  </GlowButton>
-                  <GlowButton
-                    variant="ghost"
-                    size="md"
-                    href="/resume.pdf"
-                    target="_blank"
-                    icon={<FileText size={18} />}
-                  >
-                    Download Resume / CV
-                  </GlowButton>
-                </div>
-              </div>
-
-              {/* Right Column: 3D Perspective Floating Stats Card */}
-              <div className="lg:col-span-5 flex justify-center lg:justify-end">
-                <StatsCard />
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="hobbies-tab"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
-              className="space-y-6"
-            >
-              <div className="max-w-2xl">
-                <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
-                  Beyond code and engineering, here are the personal passions that keep me energized—from
-                  building custom PCs and playing guitar to competitive gaming and hitting the road on my
-                  motorcycle.
-                </p>
-              </div>
-
-              {/* Hobbies Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {visibleHobbies.map((hobby, idx) => {
-                  const hobbyImages = getHobbyImages(hobby)
-                  const coverImage = hobbyImages[0]
-
-                  return (
-                    <motion.article
-                      key={hobby.id}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.08 }}
-                      className="group relative bg-[var(--bg-secondary)] hover:bg-[var(--bg-card)] border border-[var(--border-primary)] hover:border-[var(--accent-neon)]/50 rounded-2xl p-5 sm:p-6 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-lg focus-within:ring-2 focus-within:ring-[var(--accent-neon)] focus-within:ring-offset-2 focus-within:ring-offset-[var(--bg-primary)]"
+                return (
+                  <article key={hobby.id} className="group flex flex-col">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedHobby(hobby)}
+                      aria-label={`Open ${hobby.title} gallery`}
+                      className="block w-full text-left cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] rounded-xl"
                     >
-                      {/* Background subtle glow */}
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-neon-glow)] blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-                      <div>
-                        {/* Top Header with Icon & Category */}
-                        <div className="flex items-center justify-between gap-3 mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-primary)] group-hover:border-[var(--accent-neon)]/40 flex items-center justify-center transition-colors shrink-0">
-                              {renderHobbyIcon(hobby.icon)}
-                            </div>
-                            <div>
-                              <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--accent-neon)] font-semibold block">
-                                {hobby.category}
-                              </span>
-                              <h3 className="font-mono font-bold text-base sm:text-lg text-[var(--text-primary)] group-hover:text-[var(--accent-neon)] transition-colors">
-                                <button
-                                  type="button"
-                                  onClick={() => setSelectedHobby(hobby)}
-                                  className="text-left after:absolute after:inset-0 after:z-10 after:content-[''] focus:outline-none cursor-pointer"
-                                >
-                                  {hobby.title}
-                                </button>
-                              </h3>
-                            </div>
+                      <div className="aspect-[4/3] w-full rounded-xl overflow-hidden border border-[var(--border-primary)] group-hover:border-[var(--border-hover)] bg-[var(--media-canvas)] transition-colors">
+                        {coverImage ? (
+                          <img
+                            src={coverImage}
+                            alt={hobby.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:transform-none"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <HobbyIcon name={hobby.icon} size={28} />
                           </div>
-                        </div>
-
-                        {/* Description Preview */}
-                        <p
-                          className={`text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed line-clamp-3 ${
-                            coverImage ? 'mb-5' : ''
-                          }`}
-                        >
-                          {hobby.description}
-                        </p>
+                        )}
                       </div>
 
-                      {/* Showcase Cover Image or Read More Cue */}
-                      {coverImage ? (
-                        <div className="pt-3 border-t border-[var(--border-primary)]/60">
-                          <div className="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden border border-[var(--border-primary)] bg-[var(--bg-primary)]">
-                            <img
-                              src={coverImage}
-                              alt={hobby.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-                              loading="lazy"
-                              onError={(e) => {
-                                ;(e.target as HTMLElement).style.display = 'none'
-                              }}
-                            />
-
-                            {/* Hover Overlay Prompt */}
-                            <div className="pointer-events-none absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center p-4">
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--accent-neon)] text-[#0a0a0a] text-xs font-mono font-bold shadow-lg">
-                                {hobbyImages.length > 1 ? (
-                                  <>
-                                    <Images size={15} weight="bold" aria-hidden="true" />
-                                    View Gallery ({hobbyImages.length})
-                                  </>
-                                ) : (
-                                  <>
-                                    <ArrowsOutSimple size={15} weight="bold" aria-hidden="true" />
-                                    View Full View
-                                  </>
-                                )}
-                              </span>
-                            </div>
-
-                            {/* Always-Visible Counter / View Cue Pill */}
-                            <div className="pointer-events-none absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-md text-[11px] font-mono font-semibold text-white border border-white/15 flex items-center gap-1.5">
-                              {hobbyImages.length > 1 ? (
-                                <>
-                                  <Images size={13} className="text-[var(--accent-neon)]" aria-hidden="true" />
-                                  <span>{hobbyImages.length} Photos</span>
-                                </>
-                              ) : (
-                                <>
-                                  <ArrowsOutSimple size={13} className="text-[var(--accent-neon)]" aria-hidden="true" />
-                                  <span>Tap to view</span>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex justify-end pt-3 mt-3 border-t border-[var(--border-primary)]/60">
-                          <span className="inline-flex items-center gap-1 text-[11px] font-mono font-semibold text-[var(--accent-neon)]">
-                            Tap to read more
-                            <ArrowRight size={13} aria-hidden="true" />
+                      <div className="mt-3 flex items-baseline justify-between gap-2">
+                        <h4 className="text-sm font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors truncate">
+                          {hobby.title}
+                        </h4>
+                        {hobbyImages.length > 1 && (
+                          <span className="text-xs font-mono text-[var(--text-tertiary)] tabular-nums shrink-0">
+                            {hobbyImages.length} photos
                           </span>
-                        </div>
-                      )}
-                    </motion.article>
-                  )
-                })}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                        )}
+                      </div>
+
+                      <p className="mt-1 text-xs text-[var(--text-secondary)] line-clamp-2 leading-relaxed">
+                        {hobby.description}
+                      </p>
+                    </button>
+                  </article>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       <HobbyModal
         hobby={selectedHobby}
-        icon={selectedHobby ? renderHobbyIcon(selectedHobby.icon) : null}
+        icon={selectedHobby ? <HobbyIcon name={selectedHobby.icon} size={20} /> : null}
         onClose={() => setSelectedHobby(null)}
       />
     </section>

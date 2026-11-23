@@ -1,78 +1,34 @@
 import React from 'react'
-import {
-  ArrowUp,
-  GithubLogo,
-  LinkedinLogo,
-  FacebookLogo,
-  DiscordLogo,
-  EnvelopeSimple,
-  LockKey,
-} from '@phosphor-icons/react'
+import { ArrowUp } from '@phosphor-icons/react'
 
 export const Footer: React.FC = () => {
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' })
   }
 
-  const socialLinks = [
-    { name: 'GitHub', href: 'https://github.com/EngrPrenz', icon: <GithubLogo size={20} /> },
-    { name: 'LinkedIn', href: 'https://www.linkedin.com/in/prince-psalm-vivaz-8972b7189', icon: <LinkedinLogo size={20} /> },
-    { name: 'Facebook', href: 'https://www.facebook.com/Hugasmunaplato', icon: <FacebookLogo size={20} /> },
-    { name: 'Discord', href: 'https://discord.com', icon: <DiscordLogo size={20} /> },
-    { name: 'Email', href: 'mailto:vivazprince@gmail.com', icon: <EnvelopeSimple size={20} /> },
-  ]
-
   return (
-    <footer className="border-t border-[var(--border-primary)] bg-[var(--bg-secondary)]/50 py-12 transition-colors duration-300">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-        {/* Copyright & Discreet Admin Link */}
-        <div className="text-center sm:text-left flex flex-wrap items-center gap-3 justify-center sm:justify-start">
-          <p className="text-sm text-[var(--text-secondary)] font-mono">
-            &copy; {new Date().getFullYear()} Prince Psalm Vivaz. All rights reserved.
-          </p>
-          <span className="text-[var(--text-tertiary)] hidden sm:inline">•</span>
+    <footer className="border-t border-[var(--border-primary)] bg-[var(--bg-primary)] py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2 text-xs text-[var(--text-secondary)]">
+          <span>&copy; {new Date().getFullYear()} Prince Psalm Vivaz</span>
           <a
             href="/admin"
-            className="text-xs font-mono text-[var(--text-tertiary)] hover:text-[var(--accent-neon)] transition-colors"
+            className="text-[var(--text-tertiary)] hover:text-[var(--accent)] transition-colors py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] rounded-sm"
           >
-            Admin Studio
+            Admin
           </a>
         </div>
 
-        {/* Social Links Row */}
-        <div className="flex items-center gap-3">
-          {socialLinks.map((social) => (
-            <a
-              key={social.name}
-              href={social.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={social.name}
-              className="p-2.5 rounded-lg border border-[var(--border-primary)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent-neon)] hover:border-[var(--border-hover)] transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
-            >
-              {social.icon}
-            </a>
-          ))}
-
-          {/* Discreet Admin Lock Button */}
-          <a
-            href="/admin"
-            aria-label="Admin Dashboard"
-            title="Admin Dashboard"
-            className="p-2.5 rounded-lg border border-[var(--border-primary)] bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] hover:text-[var(--accent-neon)] hover:border-[var(--border-hover)] transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
-          >
-            <LockKey size={18} />
-          </a>
-
-          {/* Back to Top */}
-          <button
-            onClick={scrollToTop}
-            aria-label="Back to top of page"
-            className="p-2.5 rounded-lg border border-[var(--border-primary)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent-neon)] hover:border-[var(--border-hover)] transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer ml-1"
-          >
-            <ArrowUp size={20} weight="bold" />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={scrollToTop}
+          aria-label="Back to top"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[var(--border-primary)] bg-[var(--bg-secondary)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-colors min-h-[44px] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+        >
+          <span>Back to top</span>
+          <ArrowUp size={14} weight="bold" aria-hidden="true" />
+        </button>
       </div>
     </footer>
   )

@@ -27,15 +27,15 @@ export const certificationsData: Certification[] = [
     title: 'Prompt Like an Engineer',
     issuer: 'Cisco Networking Academy',
     program: 'DICT-ITU DTC Initiative',
-    credentialType: 'Student-Level Credential · Certificate of Course Completion',
+    credentialType: 'Certificate of Course Completion',
     issueDate: 'Nov 08, 2026',
     credentialId: 'dcba8119-1143-46d8-8e92-eda33ecf83f0',
     signatories: [
-      'Lynn Bloomer — Director, Cisco Networking Academy',
-      'Laarni F. Tolentino — Instructor, DICT-ITU DTC Initiative',
+      'Lynn Bloomer, Director, Cisco Networking Academy',
+      'Laarni F. Tolentino, Instructor, DICT-ITU DTC Initiative',
     ],
     summary:
-      'Completed hands-on engineering training on LLM orchestration, structured prompt design patterns, cloud vs. local model selection trade-offs, and rigorous output verification.',
+      'Completed hands-on engineering training on LLM orchestration, structured prompt patterns, cloud vs. local model trade-offs, and systematic output verification.',
     competencies: [
       'Explain how a chatbot is built around an LLM, including memory, system prompts, tools, and orchestration, and identify where errors can occur.',
       'Apply five guiding principles: stay in the lead, verify before trusting, weigh the effort, adapt AI to you, and manage risk.',

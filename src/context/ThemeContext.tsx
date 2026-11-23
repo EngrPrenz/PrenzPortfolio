@@ -7,29 +7,55 @@ interface ThemeContextType {
   toggleTheme: () => void
 }
 
+const STORAGE_KEY = 'prenz_theme'
+
+const readStoredTheme = (): Theme => {
+  if (typeof window === 'undefined') return 'dark'
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored === 'dark' || stored === 'light') return stored
+  } catch {
+    // Storage unavailable (private mode or blocked site data)
+  }
+  return 'dark'
+}
+
+const applyDocumentTheme = (theme: Theme) => {
+  const root = document.documentElement
+  root.classList.toggle('dark', theme === 'dark')
+  const meta = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]')
+  if (meta) {
+    meta.content = theme
+  }
+}
+
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('prenz_theme') as Theme | null
-      if (stored === 'dark' || stored === 'light') return stored
-    }
-    return 'dark' // default dark mode per plan
-  })
+  const [theme, setTheme] = useState<Theme>(readStoredTheme)
 
   useEffect(() => {
-    const root = document.documentElement
-    if (theme === 'dark') {
-      root.classList.add('dark')
-    } else {
-      root.classList.remove('dark')
+    applyDocumentTheme(theme)
+    try {
+      localStorage.setItem(STORAGE_KEY, theme)
+    } catch {
+      // Theme still applies in memory even if persistence is blocked
     }
-    localStorage.setItem('prenz_theme', theme)
   }, [theme])
 
+  useEffect(() => {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== STORAGE_KEY) return
+      if (event.newValue === 'dark' || event.newValue === 'light') {
+        setTheme(event.newValue)
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [])
+
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'))
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
   }
 
   return (

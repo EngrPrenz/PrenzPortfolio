@@ -8,15 +8,16 @@ export const ThemeToggle: React.FC<{ className?: string }> = ({ className = '' }
 
   return (
     <button
+      type="button"
       onClick={toggleTheme}
-      aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-      className={`relative p-2 rounded-lg border border-[var(--border-primary)] bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:border-[var(--accent-neon)] hover:text-[var(--accent-neon)] transition-all duration-200 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 ${className}`}
+      aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
+      title={`Switch to ${isDark ? 'light' : 'dark'} theme`}
+      className={`inline-flex items-center justify-center p-2 rounded-lg border border-[var(--border-primary)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-[var(--border-hover)] hover:text-[var(--text-primary)] transition-colors duration-150 cursor-pointer min-h-[44px] min-w-[44px] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${className}`}
     >
-      <span className="sr-only">Toggle theme</span>
       {isDark ? (
-        <Sun size={20} weight="bold" className="text-amber-300 animate-in fade-in duration-200" />
+        <Sun size={18} weight="regular" aria-hidden="true" />
       ) : (
-        <Moon size={20} weight="bold" className="text-indigo-600 animate-in fade-in duration-200" />
+        <Moon size={18} weight="regular" aria-hidden="true" />
       )}
     </button>
   )

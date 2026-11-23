@@ -6,39 +6,49 @@ interface StatusBadgeProps {
   className?: string
 }
 
+const STATUS_CONFIG: Record<
+  ProjectStatus,
+  { label: string; dotClass: string; badgeStyle: React.CSSProperties }
+> = {
+  live: {
+    label: 'Live',
+    dotClass: 'bg-[var(--accent)]',
+    badgeStyle: {
+      backgroundColor: 'var(--badge-bg)',
+      color: 'var(--badge-text)',
+      borderColor: 'var(--badge-border)',
+    },
+  },
+  development: {
+    label: 'In Progress',
+    dotClass: 'bg-[var(--status-dev-text)]',
+    badgeStyle: {
+      backgroundColor: 'var(--status-dev-bg)',
+      color: 'var(--status-dev-text)',
+      borderColor: 'var(--status-dev-border)',
+    },
+  },
+  upcoming: {
+    label: 'Planned',
+    dotClass: 'bg-[var(--status-upcoming-text)]',
+    badgeStyle: {
+      backgroundColor: 'var(--status-upcoming-bg)',
+      color: 'var(--status-upcoming-text)',
+      borderColor: 'var(--status-upcoming-border)',
+    },
+  },
+}
+
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className = '' }) => {
-  const configs = {
-    live: {
-      label: 'Live Deployment',
-      dotColor: 'bg-[var(--accent-neon)]',
-      ringColor: 'ring-[var(--accent-neon)]/40',
-      badgeBg: 'bg-[var(--badge-bg)] text-[var(--badge-text)] border-[var(--badge-border)]',
-    },
-    development: {
-      label: 'In Development',
-      dotColor: 'bg-amber-400',
-      ringColor: 'ring-amber-400/40',
-      badgeBg: 'bg-amber-400/10 text-amber-400 border-amber-400/30',
-    },
-    upcoming: {
-      label: 'Upcoming Project',
-      dotColor: 'bg-cyan-400',
-      ringColor: 'ring-cyan-400/40',
-      badgeBg: 'bg-cyan-400/10 text-cyan-400 border-cyan-400/30',
-    },
-  }[status]
+  const config = STATUS_CONFIG[status] || STATUS_CONFIG.live
 
   return (
     <span
-      className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium font-mono border ${configs.badgeBg} ${className}`}
+      style={config.badgeStyle}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium border ${className}`}
     >
-      <span className="relative flex h-2 w-2">
-        <span
-          className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${configs.dotColor}`}
-        />
-        <span className={`relative inline-flex rounded-full h-2 w-2 ${configs.dotColor}`} />
-      </span>
-      {configs.label}
+      <span aria-hidden="true" className={`w-1.5 h-1.5 rounded-full shrink-0 ${config.dotClass}`} />
+      <span>{config.label}</span>
     </span>
   )
 }

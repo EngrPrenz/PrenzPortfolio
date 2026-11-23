@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useId, useRef } from 'react'
 import { Hobby, getHobbyImages } from '@/types/hobby'
 import { storageService } from '@/services/storageService'
+import { useDialogModal } from '@/hooks/useDialogModal'
 import {
   X,
   UploadSimple,
@@ -34,8 +35,8 @@ const PRESET_ICONS = [
 
 const CATEGORY_PRESETS = [
   'Hardware & Systems',
-  'Music & Creative',
-  'Gaming & Esports',
+  'Music',
+  'Valorant & League',
   'Travel & Riding',
   'Engineering & Maker',
   'Interactive Media',
@@ -50,6 +51,8 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
   onClose,
   onSave,
 }) => {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const titleId = useId()
   const isEditing = Boolean(hobby)
 
   const [id, setId] = useState('')
@@ -70,7 +73,10 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 
+  useDialogModal(dialogRef, isOpen, onClose, { lightDismiss: false })
+
   useEffect(() => {
+    if (!isOpen) return
     if (hobby) {
       setId(hobby.id)
       setTitle(hobby.title)
@@ -96,8 +102,6 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
     setFormError(null)
     setUploadError(null)
   }, [hobby, isOpen])
-
-  if (!isOpen) return null
 
   const handleAddTag = () => {
     if (newTag.trim()) {
@@ -167,7 +171,12 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
       return
     }
 
-    const payloadId = id.trim() || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    const payloadId =
+      id.trim() ||
+      title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
 
     const payload: Hobby = {
       id: payloadId,
@@ -194,311 +203,319 @@ export const HobbyModalForm: React.FC<HobbyModalFormProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-2xl shadow-2xl overflow-hidden my-8 max-h-[92vh] flex flex-col">
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-[var(--border-primary)] flex items-center justify-between bg-[var(--bg-tertiary)]">
-          <div>
-            <span className="text-[11px] font-mono uppercase tracking-widest text-[var(--accent-neon)] font-semibold">
-              {isEditing ? 'UPDATE HOBBY' : 'NEW HOBBY'}
-            </span>
-            <h2 className="text-xl font-bold font-mono text-[var(--text-primary)]">
-              {isEditing ? `Edit: ${hobby?.title}` : 'Add Hobby or Passion'}
-            </h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors cursor-pointer"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Scrollable Form */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5 flex-1">
-          {formError && (
-            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
-              <WarningCircle size={18} className="shrink-0" />
-              <span>{formError}</span>
-            </div>
-          )}
-
-          {/* Title & Category */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-            <div className="sm:col-span-7">
-              <label className="block text-xs font-mono text-[var(--text-secondary)] mb-1">
-                Hobby Name / Title *
-              </label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. PC Building & Hardware Tinkering"
-                required
-                className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl py-2 px-3 text-sm text-[var(--text-primary)] font-bold focus:border-[var(--accent-neon)] focus:outline-none"
-              />
-            </div>
-
-            <div className="sm:col-span-5">
-              <label className="block text-xs font-mono text-[var(--text-secondary)] mb-1">
-                Category
-              </label>
-              <input
-                type="text"
-                list="category-suggestions"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="Hardware & Systems"
-                className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl py-2 px-3 text-sm text-[var(--text-primary)] focus:border-[var(--accent-neon)] focus:outline-none"
-              />
-              <datalist id="category-suggestions">
-                {CATEGORY_PRESETS.map((cat) => (
-                  <option key={cat} value={cat} />
-                ))}
-              </datalist>
-            </div>
+    <dialog
+      ref={dialogRef}
+      aria-labelledby={titleId}
+      className="portfolio-dialog m-auto w-[min(94vw,44rem)] max-h-[92dvh] p-0 flex-col rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-primary)] shadow-2xl overflow-hidden"
+    >
+      {isOpen && (
+        <>
+          <div className="px-6 py-4 border-b border-[var(--border-primary)] flex items-center justify-between gap-4 bg-[var(--bg-primary)] shrink-0">
+            <h1 id={titleId} className="font-display text-lg font-bold text-[var(--text-primary)] truncate">
+              {isEditing ? `Edit ${hobby?.title}` : 'New Hobby'}
+            </h1>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close hobby form"
+              className="p-2 rounded-lg border border-[var(--border-primary)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-colors cursor-pointer min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+            >
+              <X size={20} aria-hidden="true" />
+            </button>
           </div>
 
-          {/* Icon Selector / Emoji Input */}
-          <div>
-            <label className="block text-xs font-mono text-[var(--text-secondary)] mb-1">
-              Icon (Phosphor Icon Name or Emoji)
-            </label>
-            <div className="flex gap-2 mb-2">
+          <form onSubmit={handleSubmit} className="p-6 overflow-y-auto overscroll-contain space-y-5 flex-1">
+            {formError && (
+              <div
+                role="alert"
+                className="p-3.5 rounded-lg border text-xs flex items-center gap-2"
+                style={{
+                  backgroundColor: 'var(--alert-error-bg)',
+                  borderColor: 'var(--alert-error-border)',
+                  color: 'var(--alert-error-text)',
+                }}
+              >
+                <WarningCircle size={17} className="shrink-0" aria-hidden="true" />
+                <span>{formError}</span>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+              <div className="sm:col-span-7 flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-[var(--text-secondary)]">
+                  Title *
+                </label>
+                <input
+                  type="text"
+                  autoFocus
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. PC Building & Hardware"
+                  required
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg py-2 px-3 min-h-[42px] text-sm text-[var(--text-primary)] font-medium focus:border-[var(--accent)] focus:outline-none"
+                />
+              </div>
+
+              <div className="sm:col-span-5 flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-[var(--text-secondary)]">
+                  Category
+                </label>
+                <input
+                  type="text"
+                  list="category-suggestions"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  placeholder="Hardware & Systems"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg py-2 px-3 min-h-[42px] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none"
+                />
+                <datalist id="category-suggestions">
+                  {CATEGORY_PRESETS.map((cat) => (
+                    <option key={cat} value={cat} />
+                  ))}
+                </datalist>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-medium text-[var(--text-secondary)]">
+                Icon Name (Phosphor Icon)
+              </label>
               <input
                 type="text"
                 value={icon}
                 onChange={(e) => setIcon(e.target.value)}
-                placeholder="Cpu, GameController, or 🎮"
-                className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl py-2 px-3 text-sm text-[var(--text-primary)] font-mono focus:border-[var(--accent-neon)] focus:outline-none"
+                placeholder="Cpu, Guitar, GameController"
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg py-2 px-3 min-h-[42px] text-sm text-[var(--text-primary)] font-mono focus:border-[var(--accent)] focus:outline-none"
               />
-            </div>
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              <span className="text-[11px] font-mono text-[var(--text-tertiary)] mr-2 self-center">
-                Presets:
-              </span>
-              {PRESET_ICONS.map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  onClick={() => setIcon(preset)}
-                  className={`px-2 py-1 rounded text-xs font-mono border transition-colors cursor-pointer ${
-                    icon === preset
-                      ? 'bg-[var(--accent-neon)] text-black border-[var(--accent-neon)]'
-                      : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border-[var(--border-primary)] hover:border-[var(--accent-neon)]'
-                  }`}
-                >
-                  {preset}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-xs font-mono text-[var(--text-secondary)] mb-1">
-              Description & Personal Notes
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              placeholder="What do you love about this hobby? Favorite projects or experiences..."
-              className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl py-2 px-3 text-sm text-[var(--text-primary)] focus:border-[var(--accent-neon)] focus:outline-none"
-            />
-          </div>
-
-          {/* Tags */}
-          <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-primary)] space-y-3">
-            <label className="block text-xs font-mono font-semibold text-[var(--text-primary)] uppercase">
-              Highlights & Tags ({tags.length})
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    handleAddTag()
-                  }
-                }}
-                placeholder="e.g. Custom Loops, Thermals"
-                className="flex-1 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg py-1.5 px-3 text-xs text-[var(--text-primary)] focus:border-[var(--accent-neon)] focus:outline-none"
-              />
-              <button
-                type="button"
-                onClick={handleAddTag}
-                className="px-3 py-1.5 bg-[var(--accent-neon)] text-black rounded-lg text-xs font-mono font-semibold hover:bg-[var(--accent-neon-hover)] transition-colors cursor-pointer"
-              >
-                Add
-              </button>
-            </div>
-
-            <div className="flex flex-wrap gap-2 pt-1">
-              {tags.map((tag, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-xs font-mono text-[var(--text-secondary)]"
-                >
-                  #{tag}
+              <div className="flex flex-wrap gap-1.5">
+                {PRESET_ICONS.map((preset) => (
                   <button
+                    key={preset}
                     type="button"
-                    onClick={() => handleRemoveTag(i)}
-                    className="text-[var(--text-tertiary)] hover:text-red-400"
+                    onClick={() => setIcon(preset)}
+                    className={`px-2.5 py-1 rounded-md text-xs font-mono border transition-colors cursor-pointer ${
+                      icon === preset
+                        ? 'bg-[var(--accent)] text-[var(--accent-ink)] border-[var(--accent)] font-semibold'
+                        : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border-[var(--border-primary)] hover:border-[var(--border-hover)] hover:text-[var(--text-primary)]'
+                    }`}
                   >
-                    <X size={12} />
+                    {preset}
                   </button>
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Images & Display Order */}
-          <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-primary)] space-y-3">
-            <div>
-              <label className="block text-xs font-mono font-semibold text-[var(--text-primary)] uppercase">
-                Showcase Photos ({images.length})
-              </label>
-              <p className="text-[11px] text-[var(--text-tertiary)]">
-                Add local paths (0 bucket space) like /hobbies/guitar-1.jpg or upload files. First photo is the card cover.
-              </p>
-            </div>
-            {uploadError && (
-              <div className="p-2 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
-                {uploadError}
+                ))}
               </div>
-            )}
+            </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 items-center">
-              <label className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-[var(--bg-secondary)] border border-dashed border-[var(--border-primary)] hover:border-[var(--accent-neon)] text-xs font-mono text-[var(--text-primary)] cursor-pointer shrink-0">
-                <UploadSimple size={16} className="text-[var(--accent-neon)]" />
-                <span>{isUploading ? 'Uploading...' : 'Upload Image(s)'}</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleFileUpload}
-                  disabled={isUploading}
-                  className="hidden"
-                />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-[var(--text-secondary)]">
+                Description
               </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                placeholder="Short notes about this hobby or interest."
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg py-2 px-3 text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none resize-y"
+              />
+            </div>
 
-              <span className="text-xs font-mono text-[var(--text-tertiary)]">or URL</span>
-
-              <div className="flex-1 flex gap-2 w-full">
+            <div className="p-4 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-primary)] space-y-3">
+              <label className="block text-xs font-semibold text-[var(--text-primary)]">
+                Tags ({tags.length})
+              </label>
+              <div className="flex gap-2">
                 <input
                   type="text"
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
-                      handleAddImageUrl()
+                      handleAddTag()
                     }
                   }}
-                  placeholder="/hobbies/guitar.jpg or https://..."
-                  className="flex-1 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg py-1.5 px-3 text-xs text-[var(--text-primary)] font-mono focus:border-[var(--accent-neon)] focus:outline-none"
+                  placeholder="e.g. Thermal Tuning"
+                  className="flex-1 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg py-1.5 px-3 text-xs text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none"
                 />
                 <button
                   type="button"
-                  onClick={handleAddImageUrl}
-                  className="px-3 py-1.5 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg text-xs font-mono transition-colors cursor-pointer shrink-0"
+                  onClick={handleAddTag}
+                  className="px-3 py-1.5 bg-[var(--accent)] text-[var(--accent-ink)] rounded-lg text-xs font-semibold hover:bg-[var(--accent-hover)] transition-colors cursor-pointer"
                 >
-                  Add URL
+                  Add
                 </button>
               </div>
-            </div>
 
-            {images.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2">
-                {images.map((url, i) => (
-                  <div
-                    key={`${url}-${i}`}
-                    className="relative group rounded-xl overflow-hidden border border-[var(--border-primary)] bg-[var(--bg-secondary)] aspect-video"
+              <div className="flex flex-wrap gap-1.5">
+                {tags.map((tag, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-xs font-mono text-[var(--text-secondary)]"
                   >
-                    <img
-                      src={url}
-                      alt={`Hobby photo ${i + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      {i > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => handleSetCover(i)}
-                          title="Set as Cover"
-                          className="p-1.5 rounded-lg bg-amber-500/85 text-black hover:bg-amber-400 transition-colors cursor-pointer"
-                        >
-                          <Star size={14} weight="fill" />
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(i)}
-                        title="Remove Photo"
-                        className="p-1.5 rounded-lg bg-red-500/85 text-white hover:bg-red-600 transition-colors cursor-pointer"
-                      >
-                        <Trash size={14} />
-                      </button>
-                    </div>
-                    <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/75 text-[9px] font-mono text-white">
-                      {i === 0 ? '#1 Cover' : `#${i + 1}`}
-                    </span>
-                  </div>
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTag(i)}
+                      aria-label={`Remove tag ${tag}`}
+                      className="text-[var(--text-tertiary)] hover:text-[var(--alert-error-text)] cursor-pointer"
+                    >
+                      <X size={12} aria-hidden="true" />
+                    </button>
+                  </span>
                 ))}
               </div>
-            )}
+            </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-2">
+            <div className="p-4 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-primary)] space-y-3">
               <div>
-                <label className="block text-xs font-mono text-[var(--text-secondary)] mb-1">
-                  Display Order
+                <label className="block text-xs font-semibold text-[var(--text-primary)]">
+                  Photos ({images.length})
                 </label>
-                <input
-                  type="number"
-                  value={displayOrder}
-                  onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 0)}
-                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg py-1.5 px-3 text-xs text-[var(--text-primary)] font-mono focus:border-[var(--accent-neon)] focus:outline-none"
-                />
+                <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+                  Use local paths like /hobbies/setupgreen.jpg or upload files. First image is the cover.
+                </p>
               </div>
-              <div className="flex items-center pt-5">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
+
+              {uploadError && (
+                <div
+                  role="alert"
+                  className="p-2.5 rounded-lg border text-xs"
+                  style={{
+                    backgroundColor: 'var(--alert-error-bg)',
+                    borderColor: 'var(--alert-error-border)',
+                    color: 'var(--alert-error-text)',
+                  }}
+                >
+                  {uploadError}
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row gap-3 items-center">
+                <label className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3.5 py-2 min-h-[40px] rounded-lg bg-[var(--bg-secondary)] border border-dashed border-[var(--border-hover)] hover:border-[var(--accent)] text-xs font-medium text-[var(--text-primary)] cursor-pointer shrink-0">
+                  <UploadSimple size={15} className="text-[var(--accent)]" aria-hidden="true" />
+                  <span>{isUploading ? 'Uploading...' : 'Upload Image(s)'}</span>
                   <input
-                    type="checkbox"
-                    checked={featured}
-                    onChange={(e) => setFeatured(e.target.checked)}
-                    className="w-4 h-4 rounded accent-[var(--accent-neon)]"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileUpload}
+                    disabled={isUploading}
+                    className="hidden"
                   />
-                  <span className="text-xs font-mono text-[var(--text-primary)] font-semibold">
-                    Show on Portfolio?
-                  </span>
                 </label>
+
+                <span className="text-xs text-[var(--text-tertiary)]">or</span>
+
+                <div className="flex-1 flex gap-2 w-full">
+                  <input
+                    type="text"
+                    value={newImageUrl}
+                    onChange={(e) => setNewImageUrl(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        handleAddImageUrl()
+                      }
+                    }}
+                    placeholder="/hobbies/setupgreen.jpg or https://..."
+                    className="flex-1 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg py-1.5 px-3 text-xs text-[var(--text-primary)] font-mono focus:border-[var(--accent)] focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddImageUrl}
+                    className="px-3 py-1.5 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg text-xs font-medium transition-colors cursor-pointer shrink-0"
+                  >
+                    Add URL
+                  </button>
+                </div>
+              </div>
+
+              {images.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
+                  {images.map((url, i) => (
+                    <div
+                      key={`${url}-${i}`}
+                      className="relative group rounded-lg overflow-hidden border border-[var(--border-primary)] bg-[var(--media-canvas)] aspect-video"
+                    >
+                      <img
+                        src={url}
+                        alt={`Hobby photo ${i + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        {i > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => handleSetCover(i)}
+                            aria-label={`Set photo ${i + 1} as cover`}
+                            title="Set as cover"
+                            className="p-2 rounded-lg bg-amber-400 text-amber-950 hover:bg-amber-300 transition-colors cursor-pointer"
+                          >
+                            <Star size={14} weight="fill" aria-hidden="true" />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(i)}
+                          aria-label={`Remove photo ${i + 1}`}
+                          title="Remove photo"
+                          className="p-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer"
+                        >
+                          <Trash size={14} aria-hidden="true" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-medium text-[var(--text-secondary)]">
+                    Display Order
+                  </label>
+                  <input
+                    type="number"
+                    value={displayOrder}
+                    onChange={(e) => setDisplayOrder(parseInt(e.target.value, 10) || 0)}
+                    className="w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg py-1.5 px-3 text-xs text-[var(--text-primary)] font-mono tabular-nums focus:border-[var(--accent)] focus:outline-none"
+                  />
+                </div>
+                <div className="flex items-end pb-2">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={featured}
+                      onChange={(e) => setFeatured(e.target.checked)}
+                      className="w-4 h-4 rounded"
+                    />
+                    <span className="text-xs font-medium text-[var(--text-primary)]">
+                      Visible on portfolio
+                    </span>
+                  </label>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="pt-4 border-t border-[var(--border-primary)] flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-[var(--border-primary)] text-xs font-mono text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--accent-neon)] hover:bg-[var(--accent-neon-hover)] text-black font-mono font-bold text-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
-            >
-              <Check size={16} weight="bold" />
-              <span>{saving ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Hobby'}</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+            <div className="pt-4 border-t border-[var(--border-primary)] flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 min-h-[42px] rounded-lg border border-[var(--border-primary)] bg-[var(--bg-primary)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                className="inline-flex items-center gap-2 px-5 py-2 min-h-[42px] rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-ink)] font-semibold text-xs transition-colors active:scale-[0.98] cursor-pointer disabled:opacity-50"
+              >
+                <Check size={15} weight="bold" aria-hidden="true" />
+                <span>{saving ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Hobby'}</span>
+              </button>
+            </div>
+          </form>
+        </>
+      )}
+    </dialog>
   )
 }

@@ -1,259 +1,223 @@
 import React from 'react'
-import { motion, useReducedMotion } from 'motion/react'
-import { ArrowUpRight, GithubLogo, ShieldCheck, Eye, Images } from '@phosphor-icons/react'
+import { ArrowUpRight, GithubLogo, Images } from '@phosphor-icons/react'
 import { Project } from '@/data/projects'
 import { StatusBadge } from './StatusBadge'
 import { SkillBadge } from './SkillBadge'
 import { GlowButton } from './GlowButton'
+import { SpotlightCard } from './SpotlightCard'
 
 interface ProjectCardProps {
   project: Project
-  variant?: 'featured' | 'gallery'
-  index?: number
+  variant?: 'spotlight' | 'standard'
   onSelect?: (project: Project) => void
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({
   project,
-  variant = 'gallery',
+  variant = 'standard',
   onSelect,
 }) => {
-  const shouldReduceMotion = useReducedMotion()
   const primaryScreenshot = project.screenshots?.[0] || '/projects/ursachub/1.png'
+  const shotCount = project.screenshots?.length || 1
 
-  if (variant === 'featured') {
+  if (variant === 'spotlight') {
     return (
-      <div className="relative rounded-2xl glass-card border border-[var(--border-primary)] overflow-hidden transition-all duration-300 hover:border-[var(--border-hover)] hover:shadow-[0_0_35px_var(--accent-neon-glow)] group">
-        {/* Accent neon top line */}
-        <div className="h-1 w-full bg-gradient-to-r from-[var(--accent-neon)] via-emerald-400 to-transparent" />
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 p-6 sm:p-8 lg:p-10 items-center">
-          {/* Left Column: Project Info */}
-          <div className="lg:col-span-7 flex flex-col justify-between h-full">
-            <div>
-              {/* Header info */}
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                <div className="flex items-center gap-2">
-                  <StatusBadge status={project.status} />
-                  <span className="text-xs font-mono text-[var(--accent-neon)] bg-[var(--accent-neon-glow)] px-2.5 py-1 rounded border border-[var(--border-hover)] font-bold">
-                    {project.categoryTag || project.category}
-                  </span>
-                </div>
-                <span className="text-xs font-mono text-[var(--text-tertiary)]">
-                  {project.role}
-                </span>
-              </div>
-
-              {/* Title & Subtitle */}
-              <h3
-                onClick={() => onSelect?.(project)}
-                className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[var(--text-primary)] group-hover:text-[var(--accent-neon)] transition-colors cursor-pointer"
-              >
-                {project.title}
-              </h3>
-              <p className="text-sm sm:text-base font-medium text-[var(--text-secondary)] mt-1">
-                {project.subtitle}
-              </p>
-
-              {/* Description */}
-              <p className="mt-4 text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
-                {project.description}
-              </p>
-
-              {/* Architecture / QA Metrics Pill Grid */}
-              {project.metrics && project.metrics.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 my-6 pt-4 border-t border-[var(--border-primary)]">
-                  {project.metrics.map((m, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-primary)]"
-                    >
-                      <div className="text-xs font-mono text-[var(--text-tertiary)] uppercase tracking-wider flex items-center gap-1">
-                        <ShieldCheck size={14} className="text-[var(--accent-neon)]" />
-                        {m.label}
-                      </div>
-                      <div className="text-sm font-semibold font-mono text-[var(--text-primary)] mt-0.5">
-                        {m.value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Tech Stack Tags */}
-              <div className="flex flex-wrap gap-2 mt-4 mb-6">
-                {project.techStack.map((tech) => (
-                  <SkillBadge key={tech} name={tech} />
-                ))}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <GlowButton
-                variant="solid"
-                size="md"
-                onClick={() => onSelect?.(project)}
-                icon={<Eye size={18} weight="bold" />}
-              >
-                View Screenshots &amp; Specs
-              </GlowButton>
-
-              {project.liveUrl && (
-                <GlowButton
-                  variant="outline"
-                  size="md"
-                  href={project.liveUrl}
-                  target="_blank"
-                  icon={<ArrowUpRight size={18} weight="bold" />}
-                >
-                  Live Demo
-                </GlowButton>
-              )}
-
-              {project.githubUrl && (
-                <GlowButton
-                  variant="ghost"
-                  size="md"
-                  href={project.githubUrl}
-                  target="_blank"
-                  icon={<GithubLogo size={18} weight="bold" />}
-                >
-                  Source Code
-                </GlowButton>
-              )}
-            </div>
-          </div>
-
-          {/* Right Column: Screenshot Preview Banner */}
-          <div
+      <SpotlightCard
+        as="article"
+        className="rounded-xl surface-card-interactive grid grid-cols-1 lg:grid-cols-12"
+      >
+        <div className="relative z-[2] lg:col-span-7 bg-[var(--media-canvas)] border-b lg:border-b-0 lg:border-r border-[var(--border-primary)]">
+          <button
+            type="button"
             onClick={() => onSelect?.(project)}
-            className="lg:col-span-5 relative aspect-video rounded-xl overflow-hidden bg-[#10141d] border border-[var(--border-primary)] group/img cursor-pointer shadow-lg transition-all duration-300 hover:border-[var(--accent-neon)] hover:shadow-[0_0_30px_var(--accent-neon-glow)]"
+            aria-label={`Inspect ${project.title} screenshots and technical specifications`}
+            className="group block w-full h-full aspect-[16/10] lg:aspect-auto lg:min-h-[380px] overflow-hidden cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--accent)]"
           >
             <img
               src={primaryScreenshot}
-              alt={`${project.title} preview`}
-              className="w-full h-full object-contain bg-[#0a0d14] group-hover/img:scale-105 transition-transform duration-500"
-              onError={(e) => {
-                ;(e.target as HTMLImageElement).src = '/projects/ursac-hub-2.svg'
-              }}
+              alt={`${project.title} application screenshot`}
+              className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:transform-none"
+              loading="lazy"
             />
+          </button>
+        </div>
 
-            {/* Overlay prompt on hover */}
-            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2 p-4 text-center">
-              <div className="p-3 rounded-full bg-[var(--accent-neon)] text-[#0a0a0a]">
-                <Images size={24} weight="bold" />
-              </div>
-              <span className="text-sm font-mono font-bold text-white tracking-wide">
-                Click to Open Screenshot Gallery ({project.screenshots?.length || 1} Images)
+        <div className="relative z-[2] lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between gap-6">
+          <div>
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <StatusBadge status={project.status} />
+              <span className="text-xs font-mono text-[var(--text-tertiary)]">
+                {project.role}
               </span>
             </div>
 
-            {/* Slide Count Pill */}
-            <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md text-xs font-mono font-semibold text-white border border-white/10 flex items-center gap-1.5">
-              <Images size={14} className="text-[var(--accent-neon)]" />
-              <span>{project.screenshots?.length || 1} Shots</span>
+            <h3 className="font-display text-2xl sm:text-3xl font-bold text-[var(--text-primary)] leading-tight">
+              <button
+                type="button"
+                onClick={() => onSelect?.(project)}
+                className="text-left hover:text-[var(--accent)] transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] rounded-sm"
+              >
+                {project.title}
+              </button>
+            </h3>
+
+            <p className="mt-1 text-sm font-medium text-[var(--text-secondary)]">
+              {project.subtitle}
+            </p>
+
+            <p className="mt-4 text-sm text-[var(--text-secondary)] leading-relaxed">
+              {project.description}
+            </p>
+
+            {project.metrics && project.metrics.length > 0 && (
+              <dl className="mt-5 pt-4 border-t border-[var(--border-primary)] grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-2 gap-x-4 gap-y-3">
+                {project.metrics.slice(0, 4).map((metric) => (
+                  <div key={metric.label}>
+                    <dt className="text-[11px] font-mono text-[var(--text-tertiary)] uppercase tracking-wider">
+                      {metric.label}
+                    </dt>
+                    <dd className="text-xs sm:text-sm font-medium font-mono text-[var(--text-primary)] tabular-nums mt-0.5">
+                      {metric.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+
+            <div className="mt-5 flex flex-wrap gap-1.5">
+              {project.techStack.slice(0, 6).map((tech) => (
+                <SkillBadge key={tech} name={tech} />
+              ))}
+              {project.techStack.length > 6 && (
+                <span className="text-xs font-mono text-[var(--text-tertiary)] self-center px-1 tabular-nums">
+                  +{project.techStack.length - 6}
+                </span>
+              )}
             </div>
           </div>
+
+          <div className="pt-4 border-t border-[var(--border-primary)] flex flex-wrap items-center gap-2.5">
+            <GlowButton
+              variant="solid"
+              size="sm"
+              onClick={() => onSelect?.(project)}
+              icon={<Images size={15} weight="regular" />}
+            >
+              Inspect Details ({shotCount})
+            </GlowButton>
+
+            {project.liveUrl && (
+              <GlowButton
+                variant="outline"
+                size="sm"
+                href={project.liveUrl}
+                target="_blank"
+                icon={<ArrowUpRight size={15} weight="bold" />}
+              >
+                Live Site
+              </GlowButton>
+            )}
+
+            {project.githubUrl && (
+              <GlowButton
+                variant="ghost"
+                size="sm"
+                href={project.githubUrl}
+                target="_blank"
+                icon={<GithubLogo size={15} weight="regular" />}
+              >
+                Source Code
+              </GlowButton>
+            )}
+          </div>
         </div>
-      </div>
+      </SpotlightCard>
     )
   }
 
-  // Gallery Card Variant
   return (
-    <motion.div
-      layout={!shouldReduceMotion}
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={shouldReduceMotion ? {} : { y: -4 }}
-      className="flex flex-col h-full rounded-xl glass-card border border-[var(--border-primary)] overflow-hidden transition-all duration-200 hover:border-[var(--border-hover)] hover:shadow-[0_4px_25px_var(--accent-neon-glow)] group"
+    <SpotlightCard
+      as="article"
+      className="flex flex-col h-full rounded-xl surface-card-interactive"
     >
-      {/* Thumbnail Banner */}
-      <div
+      <button
+        type="button"
         onClick={() => onSelect?.(project)}
-        className="relative aspect-video w-full overflow-hidden bg-[#10141d] border-b border-[var(--border-primary)] cursor-pointer group/thumb"
+        aria-label={`Inspect ${project.title} screenshots and technical specifications`}
+        className="group relative z-[2] block aspect-[16/10] w-full overflow-hidden bg-[var(--media-canvas)] border-b border-[var(--border-primary)] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--accent)]"
       >
         <img
           src={primaryScreenshot}
-          alt={project.title}
-          className="w-full h-full object-contain bg-[#0a0d14] group-hover/thumb:scale-105 transition-transform duration-300"
-          onError={(e) => {
-            ;(e.target as HTMLImageElement).src = '/projects/ursac-hub-2.svg'
-          }}
+          alt={`${project.title} application preview`}
+          className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:transform-none"
+          loading="lazy"
         />
+      </button>
 
-        {/* Hover overlay badge */}
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center gap-2">
-          <span className="px-3 py-1.5 rounded-full bg-[var(--accent-neon)] text-[#0a0a0a] text-xs font-mono font-bold flex items-center gap-1.5 shadow-lg">
-            <Eye size={16} weight="bold" /> View Gallery
-          </span>
-        </div>
-
-        {/* Image count */}
-        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/75 backdrop-blur-sm text-[11px] font-mono text-white/90 border border-white/10">
-          {project.screenshots?.length || 1} shots
-        </div>
-      </div>
-
-      <div className="p-5 sm:p-6 flex flex-col flex-grow">
-        {/* Card Header */}
+      <div className="relative z-[2] p-5 sm:p-6 flex flex-col flex-grow">
         <div className="flex items-center justify-between gap-2 mb-3">
           <StatusBadge status={project.status} />
-          <span className="text-xs font-mono text-[var(--accent-neon)] font-medium">
-            {project.categoryTag || project.category}
+          <span className="text-xs font-mono text-[var(--text-tertiary)] truncate">
+            {project.category}
           </span>
         </div>
 
-        {/* Project Title */}
-        <h4
-          onClick={() => onSelect?.(project)}
-          className="text-lg sm:text-xl font-bold tracking-tight text-[var(--text-primary)] group-hover:text-[var(--accent-neon)] transition-colors cursor-pointer"
-        >
-          {project.title}
-        </h4>
-        <p className="text-xs font-mono text-[var(--text-secondary)] mt-0.5">
-          {project.role}
-        </p>
+        <h3 className="font-display text-lg sm:text-xl font-bold text-[var(--text-primary)] leading-snug">
+          <button
+            type="button"
+            onClick={() => onSelect?.(project)}
+            className="text-left hover:text-[var(--accent)] transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] rounded-sm"
+          >
+            {project.title}
+          </button>
+        </h3>
 
-        {/* Description */}
+        <p className="text-xs text-[var(--text-tertiary)] mt-1">{project.role}</p>
+
         <p className="mt-3 text-sm text-[var(--text-secondary)] leading-relaxed line-clamp-3 flex-grow">
           {project.description}
         </p>
 
-        {/* Tech Stack */}
-        <div className="flex flex-wrap gap-1.5 my-4 pt-3 border-t border-[var(--border-primary)]">
+        {project.metrics && project.metrics[0] && (
+          <div className="mt-4 pt-3 border-t border-[var(--border-primary)] flex items-baseline justify-between gap-3 text-xs">
+            <span className="font-mono text-[var(--text-tertiary)]">{project.metrics[0].label}</span>
+            <span className="font-mono font-medium text-[var(--text-primary)] tabular-nums text-right">
+              {project.metrics[0].value}
+            </span>
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-1.5 mt-4">
           {project.techStack.slice(0, 4).map((tech) => (
             <SkillBadge key={tech} name={tech} />
           ))}
           {project.techStack.length > 4 && (
-            <span className="text-xs font-mono text-[var(--text-tertiary)] self-center pl-1">
+            <span className="text-xs font-mono text-[var(--text-tertiary)] self-center px-1 tabular-nums">
               +{project.techStack.length - 4}
             </span>
           )}
         </div>
 
-        {/* Links and Modal Trigger */}
-        <div className="flex items-center justify-between pt-2 mt-auto border-t border-[var(--border-primary)]">
+        <div className="flex items-center justify-between gap-2 pt-4 mt-5 border-t border-[var(--border-primary)]">
           <button
+            type="button"
             onClick={() => onSelect?.(project)}
-            className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-[var(--accent-neon)] hover:underline min-h-[44px] cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent)] hover:underline min-h-[44px] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] rounded-md"
           >
-            <Images size={16} /> Inspect Shots
+            <Images size={15} aria-hidden="true" />
+            <span>Inspect Details ({shotCount})</span>
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {project.liveUrl && (
               <a
                 href={project.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`Open live demo for ${project.title}`}
-                className="text-[var(--text-secondary)] hover:text-[var(--accent-neon)] transition-colors p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label={`Open live site for ${project.title}`}
+                className="text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
               >
-                <ArrowUpRight size={18} weight="bold" />
+                <ArrowUpRight size={18} weight="bold" aria-hidden="true" />
               </a>
             )}
             {project.githubUrl && (
@@ -261,15 +225,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 href={project.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`GitHub repository for ${project.title}`}
-                className="text-[var(--text-secondary)] hover:text-[var(--accent-neon)] transition-colors p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label={`View GitHub repository for ${project.title}`}
+                className="text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
               >
-                <GithubLogo size={20} />
+                <GithubLogo size={18} weight="regular" aria-hidden="true" />
               </a>
             )}
           </div>
         </div>
       </div>
-    </motion.div>
+    </SpotlightCard>
   )
 }

@@ -1,54 +1,134 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  
-  --color-neon-green: #00ff88;
-  --color-neon-dim: #00cc6a;
-  --color-neon-dark: #008f4c;
+  --font-display: 'Space Grotesk', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-emerald-brand: #34d399;
+  --color-emerald-brand-strong: #10b981;
+  --color-emerald-brand-dark: #047857;
 }
 
 :root {
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #111111;
-  --bg-tertiary: #181818;
-  --bg-card: rgba(17, 17, 17, 0.75);
-  --text-primary: #f0f0f0;
-  --text-secondary: #909090;
-  --text-tertiary: #5a5a5a;
-  --border-primary: #222222;
-  --border-hover: rgba(0, 255, 136, 0.4);
-  --accent-neon: #00ff88;
-  --accent-neon-hover: #00cc6a;
-  --accent-neon-glow: rgba(0, 255, 136, 0.18);
-  --card-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.5);
-  --badge-bg: rgba(0, 255, 136, 0.08);
-  --badge-text: #00ff88;
-  --badge-border: rgba(0, 255, 136, 0.25);
-  --nav-bg: rgba(10, 10, 10, 0.85);
-  --particle-color: rgba(0, 255, 136, 0.35);
+  color-scheme: light dark;
+
+  --bg-primary: #080a09;
+  --bg-secondary: #101412;
+  --bg-tertiary: #161c19;
+  --bg-card: #101412;
+
+  --text-primary: #f3f7f5;
+  --text-secondary: #98a69f;
+  --text-tertiary: #7e8d86;
+
+  --border-primary: #222b26;
+  --border-hover: #35453d;
+
+  --accent: #34d399;
+  --accent-hover: #10b981;
+  --accent-ink: #042014;
+  --accent-subtle: rgba(52, 211, 153, 0.1);
+  --accent-border: rgba(52, 211, 153, 0.3);
+
+  /* Compatibility aliases */
+  --accent-neon: var(--accent);
+  --accent-neon-hover: var(--accent-hover);
+  --accent-neon-glow: var(--accent-subtle);
+
+  --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 16px 36px -18px rgba(0, 0, 0, 0.65);
+  --button-specular: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  --button-ghost-specular: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --spotlight-color: rgba(52, 211, 153, 0.16);
+  --spotlight-border: rgba(52, 211, 153, 0.32);
+  --studio-light: radial-gradient(ellipse 62% 42% at 24% 0%, rgba(52, 211, 153, 0.11), transparent 72%);
+  --admin-light: radial-gradient(ellipse 65% 45% at 78% -10%, rgba(52, 211, 153, 0.12), transparent 72%);
+
+  --badge-bg: rgba(52, 211, 153, 0.1);
+  --badge-text: #6ee7b7;
+  --badge-border: rgba(52, 211, 153, 0.28);
+  --nav-bg: rgba(8, 10, 9, 0.86);
+
+  --status-dev-bg: rgba(245, 158, 11, 0.12);
+  --status-dev-text: #fbbf24;
+  --status-dev-border: rgba(245, 158, 11, 0.3);
+  --status-upcoming-bg: rgba(56, 189, 248, 0.12);
+  --status-upcoming-text: #7dd3fc;
+  --status-upcoming-border: rgba(56, 189, 248, 0.3);
+
+  --alert-warn-bg: rgba(245, 158, 11, 0.12);
+  --alert-warn-text: #fcd34d;
+  --alert-warn-border: rgba(245, 158, 11, 0.32);
+  --alert-error-bg: rgba(239, 68, 68, 0.12);
+  --alert-error-text: #fca5a5;
+  --alert-error-border: rgba(239, 68, 68, 0.32);
+
+  --scrollbar-track: #080a09;
+  --scrollbar-thumb: #39443e;
+  --media-canvas: #0c100e;
+
+  accent-color: var(--accent);
+  caret-color: var(--accent);
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
+:root:has(> head > meta[name="color-scheme"][content="dark"]),
+html.dark {
+  color-scheme: dark;
+}
+
+:root:has(> head > meta[name="color-scheme"][content="light"]),
 html:not(.dark) {
-  --bg-primary: #f6f8f6;
+  color-scheme: light;
+
+  --bg-primary: #f4f6f5;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #edf2ee;
-  --bg-card: rgba(255, 255, 255, 0.9);
-  --text-primary: #0e1f15;
-  --text-secondary: #3f5347;
-  --text-tertiary: #788e80;
-  --border-primary: #dce5df;
-  --border-hover: rgba(5, 150, 105, 0.4);
-  --accent-neon: #059669;
-  --accent-neon-hover: #047857;
-  --accent-neon-glow: rgba(5, 150, 105, 0.15);
-  --card-shadow: 0 8px 24px -4px rgba(14, 31, 21, 0.06), 0 2px 6px -1px rgba(14, 31, 21, 0.04);
-  --badge-bg: rgba(5, 150, 105, 0.1);
-  --badge-text: #047857;
-  --badge-border: rgba(5, 150, 105, 0.28);
-  --nav-bg: rgba(246, 248, 246, 0.88);
-  --particle-color: rgba(5, 150, 105, 0.2);
+  --bg-tertiary: #e9efec;
+  --bg-card: #ffffff;
+
+  --text-primary: #0f1814;
+  --text-secondary: #43544c;
+  --text-tertiary: #54665d;
+
+  --border-primary: #d4dfd9;
+  --border-hover: #a5bab0;
+
+  --accent: #047857;
+  --accent-hover: #065f46;
+  --accent-ink: #ffffff;
+  --accent-subtle: rgba(4, 120, 87, 0.08);
+  --accent-border: rgba(4, 120, 87, 0.25);
+
+  --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.96), 0 12px 28px -16px rgba(10, 24, 17, 0.16);
+  --button-specular: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  --button-ghost-specular: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --spotlight-color: rgba(4, 120, 87, 0.1);
+  --spotlight-border: rgba(4, 120, 87, 0.26);
+  --studio-light: radial-gradient(ellipse 62% 42% at 24% 0%, rgba(4, 120, 87, 0.08), transparent 72%);
+  --admin-light: radial-gradient(ellipse 65% 45% at 78% -10%, rgba(4, 120, 87, 0.08), transparent 72%);
+
+  --badge-bg: rgba(4, 120, 87, 0.09);
+  --badge-text: #065f46;
+  --badge-border: rgba(4, 120, 87, 0.24);
+  --nav-bg: rgba(244, 246, 245, 0.9);
+
+  --status-dev-bg: rgba(180, 83, 9, 0.1);
+  --status-dev-text: #92400e;
+  --status-dev-border: rgba(180, 83, 9, 0.28);
+  --status-upcoming-bg: rgba(3, 105, 161, 0.1);
+  --status-upcoming-text: #075985;
+  --status-upcoming-border: rgba(3, 105, 161, 0.26);
+
+  --alert-warn-bg: rgba(180, 83, 9, 0.09);
+  --alert-warn-text: #78350f;
+  --alert-warn-border: rgba(180, 83, 9, 0.28);
+  --alert-error-bg: rgba(185, 28, 28, 0.08);
+  --alert-error-text: #991b1b;
+  --alert-error-border: rgba(185, 28, 28, 0.28);
+
+  --scrollbar-track: #e9efec;
+  --scrollbar-thumb: #687a71;
+  --media-canvas: #ebf0ed;
 }
 
 /* Global Reset & Base Styles */
@@ -56,72 +136,183 @@ html:not(.dark) {
   box-sizing: border-box;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  overflow-x: hidden;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  overflow-x: clip;
+  text-underline-offset: 0.22em;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Monospace font utility */
+::selection {
+  background-color: var(--accent-border);
+  color: var(--text-primary);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.035em;
+}
+
 .font-mono {
   font-family: var(--font-mono);
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+/* Form validation polish: only show invalid state after user interaction */
+input:not([type="range"]):user-invalid,
+textarea:user-invalid {
+  border-color: var(--alert-error-border);
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--border-primary);
-  border-radius: 4px;
+/* Legacy scrollbar fallback only where standard scrollbar-color is unsupported */
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 5px;
+  }
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-neon);
+/* Fixed tactile micro-grain overlay (pointer-events-none; zero scroll container repaints) */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Glowing Neon Utility Classes */
-.neon-glow {
-  box-shadow: 0 0 20px var(--accent-neon-glow);
+html:not(.dark) .grain-overlay {
+  opacity: 0.028;
 }
 
-.neon-glow-lg {
-  box-shadow: 0 0 35px var(--accent-neon-glow), 0 0 10px rgba(0, 255, 136, 0.3);
-}
-
-.neon-text-glow {
-  text-shadow: 0 0 12px var(--accent-neon-glow);
-}
-
-.glass-card {
+/* Anodized Precision surface containers */
+.surface-card {
   background-color: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-primary);
+  box-shadow: var(--card-shadow);
 }
 
-.glass-card:hover {
+.surface-card-interactive {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--card-shadow);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.surface-card-interactive:hover {
   border-color: var(--border-hover);
+}
+
+/* Zero-rerender cursor-reactive spotlight surface (uses CSS vars --mx / --my) */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(
+    320px circle at var(--mx, -320px) var(--my, -320px),
+    var(--spotlight-color),
+    transparent 68%
+  );
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .spotlight-card:hover::before {
+    opacity: 1;
+  }
+}
+
+/* Subtle directional studio lighting for focal sections */
+.section-studio-light {
+  position: relative;
+}
+
+.section-studio-light::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--studio-light);
+}
+
+.admin-studio-light {
+  position: relative;
+}
+
+.admin-studio-light::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--admin-light);
+}
+
+/* Pure CSS compositor-only scroll progress hairline (progressive enhancement) */
+.scroll-progress-bar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    @keyframes grow-scroll-progress {
+      from {
+        transform: scaleX(0);
+      }
+      to {
+        transform: scaleX(1);
+      }
+    }
+
+    .scroll-progress-bar {
+      display: block;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      background-color: var(--accent);
+      transform-origin: 0 50%;
+      pointer-events: none;
+      animation: grow-scroll-progress auto linear;
+      animation-timeline: scroll(root block);
+    }
+  }
 }
 
 /* Code block highlight styling */
 .code-block {
-  background-color: #0d0d0d;
-  border: 1px solid #222222;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
   font-family: var(--font-mono);
-}
-
-html:not(.dark) .code-block {
-  background-color: #f1f5f2;
-  border-color: #dce5df;
 }
 
 /* Light-mode contrast adjustments for bright single-tone tech logos (WCAG 1.4.11 >= 3:1) */
@@ -148,37 +339,117 @@ html:not(.dark) .tech-logo-node path {
   }
 }
 
-/* Native Modal Dialog scroll containment & top-layer styling */
+/* Native Modal Dialog scroll containment & @starting-style top-layer transitions */
 dialog:modal {
   overscroll-behavior: contain;
 }
 
-dialog::backdrop {
-  overflow: hidden;
-  overscroll-behavior: contain;
-  background-color: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.hobby-dialog:not([open]),
-.project-dialog:not([open]),
-.certification-dialog:not([open]),
-.lightbox-dialog:not([open]) {
+.portfolio-dialog:not([open]),
+.lightbox-dialog:not([open]),
+.nav-drawer-dialog:not([open]) {
   display: none;
 }
 
-.hobby-dialog[open],
-.project-dialog[open],
-.certification-dialog[open],
-.lightbox-dialog[open] {
+.portfolio-dialog[open],
+.lightbox-dialog[open],
+.nav-drawer-dialog[open] {
   display: flex;
 }
 
-.lightbox-dialog::backdrop {
-  background-color: rgba(0, 0, 0, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+dialog.portfolio-dialog,
+dialog.lightbox-dialog,
+dialog.nav-drawer-dialog {
+  opacity: 0;
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.22s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-behavior: allow-discrete;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.portfolio-dialog,
+  dialog.lightbox-dialog {
+    transform: scale(0.97) translateY(8px);
+  }
+
+  dialog.nav-drawer-dialog {
+    transform: translateX(24px);
+  }
+}
+
+dialog.portfolio-dialog::backdrop,
+dialog.lightbox-dialog::backdrop,
+dialog.nav-drawer-dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background-color: rgba(6, 8, 7, 0);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition-property: background-color, backdrop-filter, display, overlay;
+  transition-duration: 0.22s;
+  transition-timing-function: ease-out;
+  transition-behavior: allow-discrete;
+}
+
+:is(dialog.portfolio-dialog[open], dialog.lightbox-dialog[open], dialog.nav-drawer-dialog[open]):where(:not([data-closing])) {
+  opacity: 1;
+
+  @starting-style {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :is(dialog.portfolio-dialog[open], dialog.lightbox-dialog[open]):where(:not([data-closing])) {
+    transform: scale(1) translateY(0);
+
+    @starting-style {
+      transform: scale(0.97) translateY(8px);
+    }
+  }
+
+  dialog.nav-drawer-dialog[open]:where(:not([data-closing])) {
+    transform: translateX(0);
+
+    @starting-style {
+      transform: translateX(24px);
+    }
+  }
+}
+
+:is(dialog.portfolio-dialog[open], dialog.nav-drawer-dialog[open]):where(:not([data-closing]))::backdrop {
+  background-color: rgba(6, 8, 7, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  @starting-style {
+    background-color: rgba(6, 8, 7, 0);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+}
+
+dialog.lightbox-dialog[open]:where(:not([data-closing]))::backdrop {
+  background-color: rgba(5, 7, 6, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  @starting-style {
+    background-color: rgba(5, 7, 6, 0);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.portfolio-dialog,
+  dialog.lightbox-dialog,
+  dialog.nav-drawer-dialog,
+  dialog.portfolio-dialog::backdrop,
+  dialog.lightbox-dialog::backdrop,
+  dialog.nav-drawer-dialog::backdrop {
+    transition-duration: 0.1s;
+  }
 }
 
 /* Hobby Modal horizontal scroll-snap carousel */

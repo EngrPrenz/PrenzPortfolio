@@ -1,88 +1,202 @@
-import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import React, { useMemo, useState } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
 import { ProjectCategory, Project } from '@/data/projects'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { ProjectCard } from '@/components/ui/ProjectCard'
 import { ProjectModal } from '@/components/ui/ProjectModal'
-import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
 import { useProjects } from '@/hooks/useProjects'
 
-export const ProjectsGallery: React.FC = () => {
+interface ProjectsGalleryProps {
+  onSelectProject?: (project: Project) => void
+}
+
+const CATEGORIES: ProjectCategory[] = ['All', 'Full Stack', 'QA & Testing', 'AR & Systems']
+const FLAGSHIP_PRIORITY = ['vexlo', 'salo-sa-antipolo', 'ursac-hub']
+
+export const ProjectsGallery: React.FC<ProjectsGalleryProps> = ({ onSelectProject }) => {
   const [activeFilter, setActiveFilter] = useState<ProjectCategory>('All')
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [localSelectedProject, setLocalSelectedProject] = useState<Project | null>(null)
+  const shouldReduceMotion = useReducedMotion()
   const { projects } = useProjects()
 
-  const categories: ProjectCategory[] = ['All', 'Full Stack', 'QA & Testing', 'AR & Systems']
+  const handleSelect = (project: Project) => {
+    if (onSelectProject) {
+      onSelectProject(project)
+    } else {
+      setLocalSelectedProject(project)
+    }
+  }
 
-  const filteredProjects =
-    activeFilter === 'All'
-      ? projects
-      : projects.filter((p) => p.category === activeFilter)
+  const orderedProjects = useMemo(() => {
+    return [...projects].sort((a, b) => {
+      if (a.featured !== b.featured) return a.featured ? -1 : 1
+      const aRank = FLAGSHIP_PRIORITY.indexOf(a.id)
+      const bRank = FLAGSHIP_PRIORITY.indexOf(b.id)
+      if (aRank !== -1 && bRank !== -1) return aRank - bRank
+      if (aRank !== -1) return -1
+      if (bRank !== -1) return 1
+      return 0
+    })
+  }, [projects])
+
+  const featuredProjects = useMemo(
+    () => orderedProjects.filter((p) => p.featured),
+    [orderedProjects]
+  )
+
+  const archiveProjects = useMemo(
+    () => orderedProjects.filter((p) => !p.featured),
+    [orderedProjects]
+  )
+
+  const filteredProjects = useMemo(() => {
+    if (activeFilter === 'All') return orderedProjects
+    return orderedProjects.filter((p) => p.category === activeFilter)
+  }, [activeFilter, orderedProjects])
+
+  const leadSpotlight = featuredProjects[0]
+  const secondaryFeatured = featuredProjects.slice(1)
 
   return (
-    <section id="projects" className="py-24 sm:py-32 px-4 sm:px-6 lg:px-8 relative">
-      <div className="max-w-6xl mx-auto">
-        <RevealOnScroll>
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
-            <div className="min-w-0">
-              <SectionHeading
-                title="Project Archive"
-                subtitle="Explore past systems and upcoming initiatives. Click any card to inspect full screenshot galleries and technical specifications."
-                eyebrow="SYSTEMS & LABS"
-                className="mb-0"
-              />
-            </div>
+    <section
+      id="projects"
+      className="section-studio-light py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-[var(--border-primary)]"
+    >
+      {/* Backwards-compatible anchor for existing #featured links */}
+      <span id="featured" aria-hidden="true" className="block -mt-20 pt-20 pointer-events-none" />
 
-            {/* Category Filter Tabs */}
-            <div className="flex flex-nowrap items-center gap-1.5 p-1.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] self-start lg:self-auto shrink-0 max-w-full overflow-x-auto">
-              {categories.map((category) => {
-                const isActive = activeFilter === category
-                return (
-                  <button
-                    key={category}
-                    onClick={() => setActiveFilter(category)}
-                    className={`relative px-3 sm:px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all duration-200 cursor-pointer min-h-[38px] select-none whitespace-nowrap shrink-0 ${
-                      isActive
-                        ? 'text-[#0a0a0a] font-bold dark:text-[#050505]'
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                    }`}
-                  >
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeFilterTab"
-                        className="absolute inset-0 rounded-lg bg-[var(--accent-neon)] shadow-[0_0_15px_var(--accent-neon-glow)] z-0"
-                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      <div className="relative z-10 max-w-6xl mx-auto">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 sm:mb-12">
+          <SectionHeading
+            title="Selected Work"
+            subtitle="Shipped full-stack platforms, real-time POS tools, and QA-verified systems. Open any project for screenshots and architecture notes."
+            className="mb-0"
+          />
+
+          {/* Category Filter Controls with Spring Pill */}
+          <div
+            role="tablist"
+            aria-label="Filter projects by discipline"
+            className="flex items-center gap-1 p-1 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-primary)] shadow-[var(--button-ghost-specular)] self-start lg:self-auto max-w-full overflow-x-auto"
+          >
+            {CATEGORIES.map((category) => {
+              const isActive = activeFilter === category
+              return (
+                <button
+                  key={category}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActiveFilter(category)}
+                  className={`relative px-3.5 py-2 rounded-md text-xs font-medium transition-colors cursor-pointer min-h-[38px] whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${
+                    isActive
+                      ? 'text-[var(--accent-ink)] font-semibold'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  }`}
+                >
+                  {isActive &&
+                    (shouldReduceMotion ? (
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-0 rounded-md bg-[var(--accent)] shadow-[var(--button-specular)]"
                       />
-                    )}
-                    <span className="relative z-10">{category}</span>
-                  </button>
-                )
-              })}
-            </div>
+                    ) : (
+                      <motion.span
+                        layoutId="projectFilterPill"
+                        aria-hidden="true"
+                        transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                        className="absolute inset-0 rounded-md bg-[var(--accent)] shadow-[var(--button-specular)]"
+                      />
+                    ))}
+                  <span className="relative z-10">{category}</span>
+                </button>
+              )
+            })}
           </div>
-        </RevealOnScroll>
+        </div>
 
-        {/* Dynamic Animated Grid */}
-        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-          <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project, idx) => (
+        {/* All View: Deduplicated Editorial Hierarchy */}
+        {activeFilter === 'All' ? (
+          <div className="space-y-8">
+            {leadSpotlight && (
+              <ProjectCard
+                project={leadSpotlight}
+                variant="spotlight"
+                onSelect={handleSelect}
+              />
+            )}
+
+            {secondaryFeatured.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {secondaryFeatured.map((project) => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    variant="standard"
+                    onSelect={handleSelect}
+                  />
+                ))}
+              </div>
+            )}
+
+            {archiveProjects.length > 0 && (
+              <div className="pt-8 border-t border-[var(--border-primary)]">
+                <div className="flex items-baseline justify-between gap-4 mb-6">
+                  <h3 className="font-display text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
+                    Additional Systems &amp; Labs
+                  </h3>
+                  <span className="text-xs font-mono text-[var(--text-tertiary)] tabular-nums">
+                    {archiveProjects.length}{' '}
+                    {archiveProjects.length === 1 ? 'project' : 'projects'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {archiveProjects.map((project) => (
+                    <ProjectCard
+                      key={project.id}
+                      project={project}
+                      variant="standard"
+                      onSelect={handleSelect}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : filteredProjects.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredProjects.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
-                variant="gallery"
-                index={idx}
-                onSelect={(p) => setSelectedProject(p)}
+                variant="standard"
+                onSelect={handleSelect}
               />
             ))}
-          </AnimatePresence>
-        </motion.div>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-[var(--border-primary)] bg-[var(--bg-secondary)] p-10 text-center">
+            <p className="text-sm text-[var(--text-secondary)]">
+              No projects are currently listed under {activeFilter}.
+            </p>
+            <button
+              type="button"
+              onClick={() => setActiveFilter('All')}
+              className="mt-3 text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer min-h-[44px] px-3"
+            >
+              Show all projects
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Project Detail & Screenshot Carousel Modal */}
-      <ProjectModal
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-      />
+      {!onSelectProject && (
+        <ProjectModal
+          project={localSelectedProject}
+          onClose={() => setLocalSelectedProject(null)}
+        />
+      )}
     </section>
   )
 }

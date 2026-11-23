@@ -1,27 +1,21 @@
 import React, { useState } from 'react'
 import {
-  Certificate,
-  CheckCircle,
-  Copy,
   Check,
+  Copy,
   FilePdf,
-  Eye,
-  CalendarBlank,
-  ShieldCheck,
-  DownloadSimple,
+  ArrowUpRight,
 } from '@phosphor-icons/react'
 import { certificationsData, Certification } from '@/data/certifications'
 import { SectionHeading } from '@/components/ui/SectionHeading'
-import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
 import { GlowButton } from '@/components/ui/GlowButton'
+import { SkillBadge } from '@/components/ui/SkillBadge'
 import { CertificationModal } from '@/components/ui/CertificationModal'
+import { SpotlightCard } from '@/components/ui/SpotlightCard'
 
 export const Certifications: React.FC = () => {
   const [selectedCert, setSelectedCert] = useState<Certification | null>(null)
   const [initialDocIndex, setInitialDocIndex] = useState(0)
   const [copiedCertId, setCopiedCertId] = useState<string | null>(null)
-
-  const isSingle = certificationsData.length === 1
 
   const openModal = (cert: Certification, docIndex = 0) => {
     setInitialDocIndex(docIndex)
@@ -34,215 +28,163 @@ export const Certifications: React.FC = () => {
       setCopiedCertId(id)
       setTimeout(() => setCopiedCertId(null), 2200)
     } catch {
-      // Clipboard fallback unavailable
+      // Clipboard API unavailable
     }
   }
 
   return (
-    <section id="certifications" className="py-24 sm:py-32 px-4 sm:px-6 lg:px-8 relative">
+    <section
+      id="certifications"
+      className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-[var(--border-primary)] bg-[var(--bg-secondary)]/35"
+    >
       <div className="max-w-6xl mx-auto">
-        <RevealOnScroll>
-          <SectionHeading
-            eyebrow="VERIFIED CREDENTIALS"
-            title="Certifications & Training"
-            subtitle="Industry-recognized technical credentials reinforcing my software engineering, QA, and AI workflows."
-          />
-        </RevealOnScroll>
+        <SectionHeading
+          title="Credentials"
+          subtitle="Verified technical coursework and official PDF certificates."
+        />
 
-        <div
-          className={
-            isSingle
-              ? 'max-w-4xl mx-auto mt-10'
-              : 'grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10'
-          }
-        >
-          {certificationsData.map((cert, idx) => (
-            <RevealOnScroll key={cert.id} delay={idx * 0.1}>
-              <article className="relative rounded-2xl glass-card border border-[var(--border-primary)] hover:border-[var(--border-hover)] hover:shadow-[0_0_30px_var(--accent-neon-glow)] transition-all duration-300 overflow-hidden group">
-                {/* Accent neon top line */}
-                <div className="h-1 w-full bg-gradient-to-r from-[var(--accent-neon)] via-emerald-400 to-transparent" />
+        <div className="space-y-6">
+          {certificationsData.map((cert) => (
+            <SpotlightCard
+              as="article"
+              key={cert.id}
+              className="rounded-xl surface-card-interactive p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
+            >
+              {/* Left Column: Credential Identity, Summary & ID */}
+              <div className="relative z-[2] lg:col-span-7 flex flex-col gap-5">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[var(--text-tertiary)]">
+                  <span className="text-[var(--accent)] font-medium">
+                    {cert.issuer}
+                    {cert.program ? ` / ${cert.program}` : ''}
+                  </span>
+                  <span className="tabular-nums">{cert.issueDate}</span>
+                </div>
 
-                <div
-                  className={
-                    isSingle
-                      ? 'grid grid-cols-1 lg:grid-cols-12 gap-8 p-6 sm:p-8 lg:p-10 items-start'
-                      : 'flex flex-col gap-6 p-6 sm:p-8'
-                  }
-                >
-                  {/* Left / Top Column: Metadata, Credential ID, Tags & Actions */}
-                  <div className={isSingle ? 'lg:col-span-6 flex flex-col gap-5' : 'flex flex-col gap-5'}>
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[var(--badge-bg)] text-[var(--badge-text)] border border-[var(--badge-border)]">
-                        <ShieldCheck size={15} weight="fill" aria-hidden="true" />
-                        Verified Credential
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 text-xs font-mono text-[var(--text-secondary)]">
-                        <CalendarBlank size={14} className="text-[var(--accent-neon)]" aria-hidden="true" />
-                        {cert.issueDate}
-                      </span>
-                    </div>
+                <div>
+                  <h3 className="font-display text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
+                    {cert.title}
+                  </h3>
+                  <p className="text-xs font-mono text-[var(--text-tertiary)] mt-1">
+                    {cert.credentialType}
+                  </p>
+                </div>
 
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-primary)] group-hover:border-[var(--accent-neon)]/50 flex items-center justify-center shrink-0 transition-colors">
-                        <Certificate size={26} weight="duotone" className="text-[var(--accent-neon)]" aria-hidden="true" />
-                      </div>
-                      <div className="min-w-0">
-                        <span className="text-xs font-mono uppercase tracking-wider text-[var(--accent-neon)] font-semibold block">
-                          {cert.issuer}
-                          {cert.program ? ` · ${cert.program}` : ''}
-                        </span>
-                        <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-[var(--text-primary)] mt-1">
-                          {cert.title}
-                        </h3>
-                        <p className="text-xs font-mono text-[var(--text-tertiary)] mt-1">
-                          {cert.credentialType}
-                        </p>
-                      </div>
-                    </div>
+                <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed max-w-[60ch]">
+                  {cert.summary}
+                </p>
 
-                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                      {cert.summary}
-                    </p>
-
-                    {/* Credential ID Box */}
-                    <div className="p-3.5 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-primary)] space-y-1.5">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[11px] font-mono uppercase tracking-wider text-[var(--text-tertiary)]">
-                          Credential ID
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleCopyId(cert.id, cert.credentialId)}
-                          className="inline-flex items-center gap-1 text-[11px] font-mono font-semibold text-[var(--accent-neon)] hover:underline cursor-pointer"
-                        >
-                          {copiedCertId === cert.id ? (
-                            <>
-                              <Check size={13} weight="bold" aria-hidden="true" />
-                              <span>Copied</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy size={13} aria-hidden="true" />
-                              <span>Copy</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <code className="block text-xs font-mono text-[var(--text-primary)] break-all select-all">
-                        {cert.credentialId}
-                      </code>
-                    </div>
-
-                    {/* Skill Pills */}
-                    <div className="flex flex-wrap gap-2">
-                      {cert.skills.map((skill) => (
-                        <span
-                          key={skill}
-                          className="px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border border-[var(--border-primary)]"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Primary CTA */}
-                    <div className="flex flex-wrap items-center gap-3 pt-1">
-                      <GlowButton
-                        variant="solid"
-                        size="md"
-                        onClick={() => openModal(cert, 0)}
-                        icon={<Eye size={18} weight="bold" />}
-                      >
-                        Inspect Official PDFs
-                      </GlowButton>
-
-                      {cert.documents[0] && (
-                        <a
-                          href={cert.documents[0].fileUrl}
-                          download={cert.documents[0].fileName}
-                          className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg border border-[var(--border-primary)] bg-[var(--bg-tertiary)] hover:border-[var(--accent-neon)] text-xs font-mono font-semibold text-[var(--text-primary)] hover:text-[var(--accent-neon)] transition-colors"
-                        >
-                          <DownloadSimple size={16} weight="bold" aria-hidden="true" />
-                          <span>Download PDF</span>
-                        </a>
-                      )}
-                    </div>
+                {/* Inline Credential ID Row */}
+                <div className="pt-4 border-t border-[var(--border-primary)] flex flex-wrap items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="block text-[11px] font-mono uppercase tracking-wider text-[var(--text-tertiary)]">
+                      Credential ID
+                    </span>
+                    <code className="block text-xs font-mono text-[var(--text-primary)] break-all select-all mt-0.5 tabular-nums">
+                      {cert.credentialId}
+                    </code>
                   </div>
-
-                  {/* Right / Bottom Column: Verified Competencies & Document Pills */}
-                  <div
-                    className={
-                      isSingle
-                        ? 'lg:col-span-6 flex flex-col gap-5 pt-4 lg:pt-0 lg:border-l lg:border-[var(--border-primary)] lg:pl-8'
-                        : 'flex flex-col gap-5 pt-4 border-t border-[var(--border-primary)]'
-                    }
+                  <button
+                    type="button"
+                    onClick={() => handleCopyId(cert.id, cert.credentialId)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[40px] rounded-lg border border-[var(--border-primary)] bg-[var(--bg-primary)] hover:border-[var(--border-hover)] text-xs font-medium text-[var(--text-primary)] transition-colors cursor-pointer shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
                   >
-                    <div>
-                      <h4 className="text-xs font-mono uppercase tracking-wider text-[var(--accent-neon)] font-bold mb-3">
-                        Key Verified Competencies
-                      </h4>
-                      <ul className="space-y-2.5">
-                        {cert.competencies.slice(0, 5).map((comp, cIdx) => (
-                          <li
-                            key={cIdx}
-                            className="flex items-start gap-2.5 text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed"
-                          >
-                            <CheckCircle
-                              size={17}
-                              weight="fill"
-                              className="text-[var(--accent-neon)] shrink-0 mt-0.5"
-                              aria-hidden="true"
-                            />
-                            <span>{comp}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      {cert.competencies.length > 5 && (
-                        <button
-                          type="button"
-                          onClick={() => openModal(cert, 0)}
-                          className="mt-3 text-xs font-mono font-semibold text-[var(--accent-neon)] hover:underline cursor-pointer"
-                        >
-                          +{cert.competencies.length - 5} more competencies in full details →
-                        </button>
-                      )}
-                    </div>
+                    {copiedCertId === cert.id ? (
+                      <>
+                        <Check size={14} weight="bold" className="text-[var(--accent)]" aria-hidden="true" />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} aria-hidden="true" />
+                        <span>Copy ID</span>
+                      </>
+                    )}
+                  </button>
+                </div>
 
-                    {/* Quick Document Selector Pills */}
-                    <div className="pt-3 border-t border-[var(--border-primary)] space-y-2">
-                      <span className="text-[11px] font-mono uppercase tracking-wider text-[var(--text-tertiary)] block">
-                        Official Credential PDFs ({cert.documents.length})
-                      </span>
-                      <div className="flex flex-col gap-2">
-                        {cert.documents.map((doc, dIdx) => (
-                          <button
-                            key={doc.id}
-                            type="button"
-                            onClick={() => openModal(cert, dIdx)}
-                            className="w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl bg-[var(--bg-tertiary)] hover:bg-[var(--bg-secondary)] border border-[var(--border-primary)] hover:border-[var(--accent-neon)] text-left transition-all cursor-pointer group/doc"
-                          >
-                            <span className="flex items-center gap-2.5 min-w-0">
-                              <FilePdf
-                                size={18}
-                                weight="duotone"
-                                className="text-[var(--accent-neon)] shrink-0"
-                                aria-hidden="true"
-                              />
-                              <span className="text-xs font-mono font-semibold text-[var(--text-primary)] group-hover/doc:text-[var(--accent-neon)] truncate">
-                                {doc.label}
-                              </span>
-                            </span>
-                            <span className="text-[11px] font-mono text-[var(--text-tertiary)] group-hover/doc:text-[var(--accent-neon)] shrink-0">
-                              Preview →
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {cert.skills.map((skill) => (
+                    <SkillBadge key={skill} name={skill} />
+                  ))}
+                </div>
+
+                <div className="pt-1">
+                  <GlowButton
+                    variant="solid"
+                    size="md"
+                    onClick={() => openModal(cert, 0)}
+                    icon={<ArrowUpRight size={17} weight="bold" />}
+                  >
+                    Inspect Certificates ({cert.documents.length})
+                  </GlowButton>
+                </div>
+              </div>
+
+              {/* Right Column: Top Competencies & Direct PDF Triggers */}
+              <div className="relative z-[2] lg:col-span-5 flex flex-col gap-6 pt-6 lg:pt-0 border-t lg:border-t-0 lg:border-l border-[var(--border-primary)] lg:pl-8">
+                <div>
+                  <h4 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+                    Verified Competencies
+                  </h4>
+                  <ul className="space-y-2.5">
+                    {cert.competencies.slice(0, 3).map((comp, cIdx) => (
+                      <li
+                        key={cIdx}
+                        className="flex items-start gap-2.5 text-sm text-[var(--text-secondary)] leading-relaxed"
+                      >
+                        <Check
+                          size={15}
+                          weight="bold"
+                          className="text-[var(--accent)] shrink-0 mt-1"
+                          aria-hidden="true"
+                        />
+                        <span>{comp}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {cert.competencies.length > 3 && (
+                    <button
+                      type="button"
+                      onClick={() => openModal(cert, 0)}
+                      className="mt-3 text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer min-h-[36px] inline-flex items-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] rounded-sm"
+                    >
+                      View all {cert.competencies.length} competencies
+                    </button>
+                  )}
+                </div>
+
+                <div className="pt-5 border-t border-[var(--border-primary)]">
+                  <h4 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+                    Official PDF Documents
+                  </h4>
+                  <div className="divide-y divide-[var(--border-primary)] border-y border-[var(--border-primary)]">
+                    {cert.documents.map((doc, dIdx) => (
+                      <button
+                        key={doc.id}
+                        type="button"
+                        onClick={() => openModal(cert, dIdx)}
+                        className="w-full py-3 flex items-center justify-between gap-3 text-left group cursor-pointer min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] rounded-sm"
+                      >
+                        <span className="flex items-center gap-2.5 min-w-0">
+                          <FilePdf
+                            size={18}
+                            weight="regular"
+                            className="text-[var(--accent)] shrink-0"
+                            aria-hidden="true"
+                          />
+                          <span className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors truncate">
+                            {doc.label}
+                          </span>
+                        </span>
+                        <span className="text-xs font-mono text-[var(--text-tertiary)] group-hover:text-[var(--accent)] shrink-0">
+                          Open
+                        </span>
+                      </button>
+                    ))}
                   </div>
                 </div>
-              </article>
-            </RevealOnScroll>
+              </div>
+            </SpotlightCard>
           ))}
         </div>
       </div>
