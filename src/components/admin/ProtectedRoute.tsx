@@ -9,59 +9,85 @@ export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childr
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-2 border-[var(--accent-neon)] border-t-transparent rounded-full animate-spin" />
-          <span className="font-mono text-sm text-[var(--accent-neon)] tracking-wider uppercase animate-pulse">
-            Authenticating Admin Access...
+      <div className="min-h-[100dvh] bg-[var(--bg-primary)] flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm text-[var(--text-secondary)]">
+            Checking administrator access...
           </span>
         </div>
       </div>
     )
   }
 
-  // Not logged in and not bypassed in dev
   if (!user && !isDevBypassed) {
     return <Navigate to="/admin/login" replace />
   }
 
-  // Logged in with Google/Supabase, but email is NOT whitelisted
   if (user && !isAdmin) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-6 text-[var(--text-primary)]">
-        <div className="max-w-md w-full bg-[var(--bg-card)] border border-red-500/30 rounded-2xl p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 via-amber-500 to-red-600" />
-          
-          <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-6 text-red-400">
-            <ShieldWarning size={36} weight="duotone" />
+      <div className="admin-studio-light min-h-[100dvh] bg-[var(--bg-primary)] flex items-center justify-center p-6 text-[var(--text-primary)]">
+        <div className="relative z-10 max-w-md w-full rounded-xl surface-card p-7 space-y-5">
+          <div
+            className="w-12 h-12 rounded-lg border flex items-center justify-center"
+            style={{
+              backgroundColor: 'var(--alert-error-bg)',
+              borderColor: 'var(--alert-error-border)',
+              color: 'var(--alert-error-text)',
+            }}
+          >
+            <ShieldWarning size={24} weight="duotone" aria-hidden="true" />
           </div>
 
-          <h1 className="text-2xl font-bold font-mono text-center text-red-400 mb-2">
-            Access Denied
-          </h1>
-          <p className="text-center text-sm text-[var(--text-secondary)] mb-6">
-            The account <span className="font-mono text-[var(--text-primary)] font-semibold">{user.email}</span> is not on the authorized administrator whitelist.
-          </p>
+          <div>
+            <h1
+              className="font-display text-xl font-bold"
+              style={{ color: 'var(--alert-error-text)' }}
+            >
+              Access Denied
+            </h1>
+            <p className="text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed">
+              The account{' '}
+              <span className="font-mono text-[var(--text-primary)] font-medium">{user.email}</span>{' '}
+              is not on the authorized administrator list.
+            </p>
+          </div>
 
-          <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg p-4 mb-6 text-xs text-[var(--text-secondary)] space-y-2">
-            <p className="font-semibold text-[var(--text-primary)]">To grant access to this email:</p>
-            <p className="font-mono text-[var(--accent-neon)] break-all">
+          <div className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-4 text-xs text-[var(--text-secondary)] space-y-2">
+            <p className="font-semibold text-[var(--text-primary)]">
+              To grant access to this email:
+            </p>
+            <p className="font-mono text-[var(--accent)] break-all">
               VITE_ADMIN_EMAILS={user.email}
             </p>
-            <p>Add the line above to your project's <code className="text-white">.env</code> file and restart the Vite server.</p>
+            <p>
+              Add that line to your <code className="font-mono text-[var(--text-primary)]">.env</code>{' '}
+              file and restart the server.
+            </p>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2.5">
             <button
+              type="button"
               onClick={() => signOut()}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 transition-all font-mono text-sm"
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg border text-sm font-medium transition-opacity hover:opacity-90 cursor-pointer"
+              style={{
+                backgroundColor: 'var(--alert-error-bg)',
+                borderColor: 'var(--alert-error-border)',
+                color: 'var(--alert-error-text)',
+              }}
             >
-              <SignOut size={18} />
-              Sign Out & Try Another Account
+              <SignOut size={17} aria-hidden="true" />
+              <span>Sign Out &amp; Try Another Account</span>
             </button>
-            <GlowButton href="/" variant="outline" size="sm" className="w-full justify-center">
-              <ArrowLeft size={16} />
-              Return to Public Portfolio
+            <GlowButton
+              href="/"
+              variant="outline"
+              size="md"
+              className="w-full"
+              icon={<ArrowLeft size={16} />}
+            >
+              Return to Portfolio
             </GlowButton>
           </div>
         </div>

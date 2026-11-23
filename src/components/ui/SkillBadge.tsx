@@ -13,10 +13,10 @@ export const SkillBadge: React.FC<SkillBadgeProps> = ({
 }) => {
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-mono tracking-tight transition-all duration-150 select-none ${
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-mono tracking-tight border ${
         highlight
-          ? 'bg-[var(--accent-neon-glow)] text-[var(--accent-neon)] border border-[var(--border-hover)]'
-          : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border border-[var(--border-primary)] hover:text-[var(--text-primary)] hover:border-[var(--accent-neon)]'
+          ? 'bg-[var(--badge-bg)] text-[var(--badge-text)] border-[var(--badge-border)]'
+          : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border-[var(--border-primary)]'
       } ${className}`}
     >
       {name}

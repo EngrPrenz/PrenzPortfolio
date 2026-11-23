@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useRef, useState } from 'react'
 import { X, CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { Hobby, getHobbyImages } from '@/types/hobby'
+import { useDialogModal } from '@/hooks/useDialogModal'
 
 interface HobbyModalProps {
   hobby: Hobby | null
@@ -24,18 +25,11 @@ const getNearestSlideIndex = (track: HTMLDivElement): number => {
   return nearestIdx
 }
 
-/**
- * Native modal dialog displaying full hobby details and a multi-photo scroll-snap carousel.
- */
 export const HobbyModal: React.FC<HobbyModalProps> = ({ hobby, icon, onClose }) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
 
-  const onCloseRef = useRef(onClose)
-  onCloseRef.current = onClose
-
-  const dispatchedOpenRef = useRef(false)
   const pendingTargetRef = useRef<number | null>(null)
   const scrollStartLeftRef = useRef<number | null>(null)
   const settledSlideRef = useRef<number>(0)
@@ -47,11 +41,7 @@ export const HobbyModal: React.FC<HobbyModalProps> = ({ hobby, icon, onClose }) 
 
   const images = hobby ? getHobbyImages(hobby) : []
 
-  // Open or close native top-layer <dialog> cleanly when selected hobby changes
   useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
-
     if (hobby) {
       setCurrentSlide(0)
       settledSlideRef.current = 0
@@ -61,73 +51,12 @@ export const HobbyModal: React.FC<HobbyModalProps> = ({ hobby, icon, onClose }) 
       if (trackRef.current) {
         trackRef.current.scrollLeft = 0
       }
-      if (!dialog.open) {
-        dialog.showModal()
-      }
-      if (!dispatchedOpenRef.current) {
-        dispatchedOpenRef.current = true
-        window.dispatchEvent(new CustomEvent('prenz:modal-open'))
-      }
-    } else if (dialog.open) {
-      dialog.close()
     }
   }, [hobby])
 
-  // Sync React state when browser closes the dialog (Esc, Close button, or light dismiss)
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
+  useDialogModal(dialogRef, Boolean(hobby), onClose, { lightDismiss: true })
 
-    const handleClose = () => {
-      dialog.returnValue = ''
-      if (dispatchedOpenRef.current) {
-        dispatchedOpenRef.current = false
-        window.dispatchEvent(new CustomEvent('prenz:modal-close'))
-      }
-      onCloseRef.current()
-    }
-
-    dialog.addEventListener('close', handleClose)
-    return () => {
-      dialog.removeEventListener('close', handleClose)
-      if (dispatchedOpenRef.current) {
-        dispatchedOpenRef.current = false
-        window.dispatchEvent(new CustomEvent('prenz:modal-close'))
-      }
-    }
-  }, [])
-
-  // Mandatory Safari light-dismiss fallback where HTMLDialogElement.prototype.closedBy is missing
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog || 'closedBy' in HTMLDialogElement.prototype) return
-
-    let pressedOutside = false
-    const isOutside = (e: PointerEvent) => {
-      const r = dialog.getBoundingClientRect()
-      return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom
-    }
-
-    const handlePointerDown = (e: PointerEvent) => {
-      pressedOutside = isOutside(e)
-    }
-
-    const handlePointerUp = (e: PointerEvent) => {
-      if (pressedOutside && isOutside(e) && dialog.open) {
-        dialog.close()
-      }
-      pressedOutside = false
-    }
-
-    dialog.addEventListener('pointerdown', handlePointerDown)
-    dialog.addEventListener('pointerup', handlePointerUp)
-    return () => {
-      dialog.removeEventListener('pointerdown', handlePointerDown)
-      dialog.removeEventListener('pointerup', handlePointerUp)
-    }
-  }, [])
-
-  // Keep thumbnail markers & live status synced with native scroll-snap track
+  // Sync thumbnail selection and live announcement with native scroll-snap track
   useEffect(() => {
     const track = trackRef.current
     if (!track || !hobby || images.length <= 1) return
@@ -155,10 +84,7 @@ export const HobbyModal: React.FC<HobbyModalProps> = ({ hobby, icon, onClose }) 
       }
     }
 
-    // Lenis attaches a window capture-phase scrollend listener that calls e.stopPropagation(),
-    // preventing descendant scroll containers from receiving native scrollend events.
-    const supportsScrollEnd =
-      'onscrollend' in window && !document.documentElement.classList.contains('lenis')
+    const supportsScrollEnd = 'onscrollend' in window
 
     const handleScroll = () => {
       if (pendingTargetRef.current === null) {
@@ -228,27 +154,26 @@ export const HobbyModal: React.FC<HobbyModalProps> = ({ hobby, icon, onClose }) 
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
-      {...({ closedby: 'any' } as any)}
-      className="hobby-dialog m-auto w-[min(92vw,56rem)] max-h-[90dvh] p-0 flex-col rounded-2xl bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-primary)] shadow-2xl overflow-hidden"
+      {...({ closedby: 'any' } as Record<string, string>)}
+      className="portfolio-dialog m-auto w-[min(92vw,54rem)] max-h-[90dvh] p-0 flex-col rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-primary)] shadow-2xl overflow-hidden"
     >
       {hobby && (
         <>
-          {/* Header Bar */}
-          <div className="flex items-start justify-between gap-4 px-5 py-4 sm:px-7 sm:py-5 border-b border-[var(--border-primary)] bg-[var(--bg-tertiary)]/80 shrink-0">
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-primary)] flex items-center justify-center shrink-0">
+          <div className="flex items-start justify-between gap-4 px-5 py-4 sm:px-6 sm:py-5 border-b border-[var(--border-primary)] bg-[var(--bg-primary)] shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-primary)] flex items-center justify-center shrink-0">
                 {icon}
               </div>
               <div className="min-w-0">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[var(--accent-neon)] font-semibold block">
+                <span className="text-xs font-mono text-[var(--text-tertiary)] block">
                   {hobby.category}
                 </span>
-                <h2
+                <h1
                   id={titleId}
-                  className="font-mono font-bold text-lg sm:text-2xl text-[var(--text-primary)] leading-tight"
+                  className="font-display text-lg sm:text-xl font-bold text-[var(--text-primary)] leading-tight"
                 >
                   {hobby.title}
-                </h2>
+                </h1>
               </div>
             </div>
 
@@ -257,23 +182,19 @@ export const HobbyModal: React.FC<HobbyModalProps> = ({ hobby, icon, onClose }) 
               autoFocus
               onClick={() => dialogRef.current?.close()}
               aria-label="Close hobby details"
-              className="p-2.5 rounded-full bg-[var(--bg-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent-neon)] border border-[var(--border-primary)] transition-colors cursor-pointer shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-neon)]"
+              className="p-2.5 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] border border-[var(--border-primary)] transition-colors cursor-pointer shrink-0 min-h-[44px] min-w-[44px] inline-flex items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
             >
-              <X size={20} weight="bold" aria-hidden="true" />
+              <X size={20} weight="regular" aria-hidden="true" />
             </button>
           </div>
 
-          {/* Scrollable Content */}
-          <div
-            data-lenis-prevent
-            className="overflow-y-auto overscroll-contain p-5 sm:p-7 space-y-6"
-          >
+          <div className="overflow-y-auto overscroll-contain p-5 sm:p-6 space-y-5">
             {images.length === 1 && (
-              <div className="relative rounded-xl overflow-hidden border border-[var(--border-primary)] bg-[#080a0c] flex items-center justify-center">
+              <div className="rounded-lg overflow-hidden border border-[var(--border-primary)] bg-[var(--media-canvas)] flex items-center justify-center">
                 <img
                   src={images[0]}
                   alt={hobby.title}
-                  className="w-full max-h-[58vh] object-contain select-none"
+                  className="w-full max-h-[56vh] object-contain select-none"
                 />
               </div>
             )}
@@ -284,14 +205,13 @@ export const HobbyModal: React.FC<HobbyModalProps> = ({ hobby, icon, onClose }) 
                 aria-label={`${hobby.title} photo gallery`}
                 className="space-y-3"
               >
-                <div className="relative rounded-xl overflow-hidden border border-[var(--border-primary)] bg-[#080a0c]">
-                  {/* Previous / Next Controls placed before the track in DOM order */}
+                <div className="relative rounded-lg overflow-hidden border border-[var(--border-primary)] bg-[var(--media-canvas)]">
                   <div className="pointer-events-none absolute inset-y-0 inset-x-0 z-10 flex items-center justify-between px-3">
                     <button
                       type="button"
                       onClick={() => handleStep(-1)}
                       aria-label="Previous photo"
-                      className="pointer-events-auto touch-manipulation min-h-[44px] min-w-[44px] rounded-full bg-black/75 text-white border border-white/20 hover:bg-[var(--accent-neon)] hover:text-black hover:border-[var(--accent-neon)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-neon)] flex items-center justify-center backdrop-blur-sm transition-colors cursor-pointer"
+                      className="pointer-events-auto touch-manipulation min-h-[44px] min-w-[44px] rounded-lg bg-[var(--bg-secondary)]/90 text-[var(--text-primary)] border border-[var(--border-primary)] hover:border-[var(--accent)] hover:text-[var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] inline-flex items-center justify-center backdrop-blur-sm transition-colors cursor-pointer"
                     >
                       <CaretLeft size={20} weight="bold" aria-hidden="true" />
                     </button>
@@ -299,16 +219,15 @@ export const HobbyModal: React.FC<HobbyModalProps> = ({ hobby, icon, onClose }) 
                       type="button"
                       onClick={() => handleStep(1)}
                       aria-label="Next photo"
-                      className="pointer-events-auto touch-manipulation min-h-[44px] min-w-[44px] rounded-full bg-black/75 text-white border border-white/20 hover:bg-[var(--accent-neon)] hover:text-black hover:border-[var(--accent-neon)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-neon)] flex items-center justify-center backdrop-blur-sm transition-colors cursor-pointer"
+                      className="pointer-events-auto touch-manipulation min-h-[44px] min-w-[44px] rounded-lg bg-[var(--bg-secondary)]/90 text-[var(--text-primary)] border border-[var(--border-primary)] hover:border-[var(--accent)] hover:text-[var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] inline-flex items-center justify-center backdrop-blur-sm transition-colors cursor-pointer"
                     >
                       <CaretRight size={20} weight="bold" aria-hidden="true" />
                     </button>
                   </div>
 
-                  {/* Scroll-Snap Track */}
                   <div
                     ref={trackRef}
-                    className="hobby-carousel-track relative focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-neon)]"
+                    className="hobby-carousel-track relative focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
                     tabIndex={0}
                     role="group"
                     aria-label="Photos"
@@ -319,32 +238,31 @@ export const HobbyModal: React.FC<HobbyModalProps> = ({ hobby, icon, onClose }) 
                         role="group"
                         aria-roledescription="slide"
                         aria-label={`${idx + 1} of ${images.length}`}
-                        className="hobby-carousel-slide flex items-center justify-center bg-[#080a0c]"
+                        className="hobby-carousel-slide flex items-center justify-center bg-[var(--media-canvas)]"
                       >
                         <img
                           src={img}
-                          alt={`${hobby.title} — photo ${idx + 1} of ${images.length}`}
-                          className="w-full max-h-[56vh] object-contain select-none"
+                          alt={`${hobby.title} photo ${idx + 1} of ${images.length}`}
+                          className="w-full max-h-[54vh] object-contain select-none"
                         />
                       </div>
                     ))}
                   </div>
-
-                  {/* Counter Pill */}
-                  <div className="pointer-events-none absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-black/75 backdrop-blur-md text-xs font-mono font-bold text-white border border-white/15">
-                    {currentSlide + 1} / {images.length}
-                  </div>
                 </div>
 
-                {/* Screen-reader live announcement after scroll settles */}
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs font-mono text-[var(--text-tertiary)] tabular-nums">
+                    Photo {currentSlide + 1} of {images.length}
+                  </span>
+                </div>
+
                 <p className="sr-only" role="status" aria-live="polite">
                   {announcement}
                 </p>
 
-                {/* Thumbnail Markers */}
                 <nav
                   aria-label="Choose a photo"
-                  className="flex items-center gap-2.5 overflow-x-auto pb-1 pt-0.5"
+                  className="flex items-center gap-2 overflow-x-auto py-1"
                 >
                   {images.map((img, idx) => {
                     const isActive = currentSlide === idx
@@ -355,10 +273,10 @@ export const HobbyModal: React.FC<HobbyModalProps> = ({ hobby, icon, onClose }) 
                         onClick={() => goToSlide(idx)}
                         aria-label={`Go to photo ${idx + 1} of ${images.length}`}
                         aria-current={isActive ? 'true' : undefined}
-                        className={`relative shrink-0 w-20 sm:w-24 h-12 sm:h-14 min-h-[44px] rounded-lg overflow-hidden bg-[#080a0c] transition-all cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-neon)] ${
+                        className={`relative shrink-0 w-20 sm:w-24 h-12 sm:h-14 min-h-[44px] rounded-lg overflow-hidden bg-[var(--media-canvas)] transition-opacity cursor-pointer touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${
                           isActive
-                            ? 'border-2 border-[var(--accent-neon)] ring-2 ring-[var(--accent-neon)]/70 scale-[1.03] opacity-100'
-                            : 'border border-[var(--border-primary)] opacity-60 hover:opacity-95'
+                            ? 'border-2 border-[var(--accent)] opacity-100'
+                            : 'border border-[var(--border-primary)] opacity-60 hover:opacity-100'
                         }`}
                       >
                         <img
@@ -367,12 +285,6 @@ export const HobbyModal: React.FC<HobbyModalProps> = ({ hobby, icon, onClose }) 
                           aria-hidden="true"
                           className="w-full h-full object-cover"
                         />
-                        {isActive && (
-                          <span
-                            aria-hidden="true"
-                            className="absolute inset-x-1.5 bottom-1 h-1 rounded-full bg-[var(--accent-neon)]"
-                          />
-                        )}
                       </button>
                     )
                   })}
@@ -380,15 +292,9 @@ export const HobbyModal: React.FC<HobbyModalProps> = ({ hobby, icon, onClose }) 
               </section>
             )}
 
-            {/* Full Hobby Description */}
-            <div className="space-y-2 pt-1">
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--accent-neon)]">
-                About This Hobby
-              </h3>
-              <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
-                {hobby.description}
-              </p>
-            </div>
+            <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
+              {hobby.description}
+            </p>
           </div>
         </>
       )}

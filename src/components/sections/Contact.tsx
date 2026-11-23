@@ -5,34 +5,45 @@ import {
   LinkedinLogo,
   FacebookLogo,
   DiscordLogo,
-  FileText,
   PaperPlaneTilt,
   CheckCircle,
   WarningCircle,
   CircleNotch,
   Copy,
+  Check,
+  ArrowUpRight,
 } from '@phosphor-icons/react'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { GlowButton } from '@/components/ui/GlowButton'
-import { RevealOnScroll } from '@/components/ui/RevealOnScroll'
+import { SpotlightCard } from '@/components/ui/SpotlightCard'
+
+const EMAIL_ADDRESS = 'vivazprince@gmail.com'
+const DISCORD_HANDLE = 'zavs24'
 
 export const Contact: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' })
+  const [submittedName, setSubmittedName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [copiedEmail, setCopiedEmail] = useState(false)
+  const [copiedKey, setCopiedKey] = useState<'email' | 'discord' | null>(null)
 
-  const emailAddress = 'vivazprince@gmail.com'
   const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || ''
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.name || !formData.email || !formData.message) return
+    const trimmedName = formData.name.trim()
+    const trimmedEmail = formData.email.trim()
+    const trimmedMessage = formData.message.trim()
+
+    if (!trimmedName || !trimmedEmail || !trimmedMessage) {
+      setErrorMessage('Please fill in your name, email address, and message.')
+      return
+    }
 
     if (!accessKey) {
       setErrorMessage(
-        'Web3Forms access key is not set. Please add VITE_WEB3FORMS_ACCESS_KEY in your .env file, or email vivazprince@gmail.com directly.'
+        `The contact form is not configured in this environment. Please email ${EMAIL_ADDRESS} directly.`
       )
       return
     }
@@ -49,302 +60,305 @@ export const Contact: React.FC = () => {
         },
         body: JSON.stringify({
           access_key: accessKey,
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
-          from_name: formData.name,
-          subject: `Portfolio Contact from ${formData.name}`,
+          name: trimmedName,
+          email: trimmedEmail,
+          message: trimmedMessage,
+          from_name: trimmedName,
+          subject: `Portfolio inquiry from ${trimmedName}`,
         }),
       })
 
       const data = await response.json()
 
       if (data.success) {
+        setSubmittedName(trimmedName)
         setIsSubmitted(true)
         setFormData({ name: '', email: '', message: '' })
       } else {
-        setErrorMessage(data.message || 'Failed to send message. Please try again or email directly.')
+        setErrorMessage(
+          data.message || `Could not send your message. Please try again or email ${EMAIL_ADDRESS}.`
+        )
       }
     } catch {
-      setErrorMessage('Network error occurred. Please try again or reach out directly via email.')
+      setErrorMessage(
+        `Network error while sending your message. Please try again or email ${EMAIL_ADDRESS} directly.`
+      )
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const handleCopyEmail = () => {
-    navigator.clipboard.writeText(emailAddress)
-    setCopiedEmail(true)
-    setTimeout(() => setCopiedEmail(false), 2500)
+  const handleCopy = async (key: 'email' | 'discord', value: string) => {
+    try {
+      await navigator.clipboard.writeText(value)
+      setCopiedKey(key)
+      setTimeout(() => setCopiedKey(null), 2400)
+    } catch {
+      // Clipboard unavailable
+    }
   }
 
-  const socials = [
+  const externalProfiles = [
     {
       name: 'GitHub',
       handle: '@EngrPrenz',
       href: 'https://github.com/EngrPrenz',
-      icon: <GithubLogo size={22} />,
+      icon: <GithubLogo size={19} aria-hidden="true" />,
     },
     {
       name: 'LinkedIn',
       handle: 'Prince Psalm Vivaz',
       href: 'https://www.linkedin.com/in/prince-psalm-vivaz-8972b7189',
-      icon: <LinkedinLogo size={22} />,
+      icon: <LinkedinLogo size={19} aria-hidden="true" />,
     },
     {
       name: 'Facebook',
       handle: 'Prince Psalm Vivaz',
       href: 'https://facebook.com/Hugasmunaplato',
-      icon: <FacebookLogo size={22} />,
-    },
-    {
-      name: 'Discord',
-      handle: 'zavs24',
-      href: 'https://discord.com',
-      icon: <DiscordLogo size={22} />,
+      icon: <FacebookLogo size={19} aria-hidden="true" />,
     },
   ]
 
   return (
-    <section id="contact" className="py-24 sm:py-32 px-4 sm:px-6 lg:px-8 relative">
-      <div className="max-w-6xl mx-auto">
-        <RevealOnScroll>
-          <SectionHeading
-            title="Let&apos;s Build Together"
-            subtitle="Have a project in mind, an engineering role, or a QA inquiry? Send a dispatch or connect across platforms."
-            eyebrow="GET IN TOUCH"
-          />
-        </RevealOnScroll>
+    <section id="contact" className="section-studio-light py-20 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-6xl mx-auto">
+        <SectionHeading
+          title="Contact"
+          subtitle="Hiring for a full-stack or QA engineering role, or want to discuss a project? Send a message below or reach out directly."
+        />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mt-10 items-start">
-          {/* Left Column: Interactive Contact Form */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+          {/* Left: Contact Form */}
           <div className="lg:col-span-7">
-            <RevealOnScroll delay={0.1}>
-              <div className="rounded-2xl glass-card border border-[var(--border-primary)] p-6 sm:p-8 sm:p-10 shadow-xl">
-                {isSubmitted ? (
-                  <div className="text-center py-12 space-y-4 animate-in fade-in zoom-in-95 duration-300">
-                    <div className="w-16 h-16 rounded-full bg-[var(--accent-neon-glow)] text-[var(--accent-neon)] flex items-center justify-center mx-auto border border-[var(--border-hover)]">
-                      <CheckCircle size={36} weight="fill" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-[var(--text-primary)]">
-                      Transmission Received
-                    </h3>
-                    <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto">
-                      Thank you for reaching out, {formData.name}. I will review your message and respond promptly!
-                    </p>
-                    <div className="pt-4">
-                      <button
-                        onClick={() => {
-                          setIsSubmitted(false)
-                          setErrorMessage(null)
-                          setFormData({ name: '', email: '', message: '' })
-                        }}
-                        className="text-xs font-mono text-[var(--accent-neon)] hover:underline cursor-pointer"
-                      >
-                        Send another dispatch
-                      </button>
-                    </div>
+            <SpotlightCard className="rounded-xl surface-card-interactive p-6 sm:p-8">
+              <div className="relative z-[2]">
+              {isSubmitted ? (
+                <div className="py-10 text-center space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-[var(--badge-bg)] text-[var(--accent)] border border-[var(--badge-border)] flex items-center justify-center mx-auto">
+                    <CheckCircle size={26} weight="fill" aria-hidden="true" />
                   </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                      <label
-                        htmlFor="name"
-                        className="block text-xs font-mono uppercase tracking-wider text-[var(--text-secondary)] mb-2 font-medium"
-                      >
-                        Your Name <span className="text-[var(--accent-neon)]">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        required
-                        value={formData.name}
-                        onChange={(e) => {
-                          if (errorMessage) setErrorMessage(null)
-                          setFormData({ ...formData, name: e.target.value })
-                        }}
-                        placeholder="Ada Lovelace"
-                        className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] text-sm focus:outline-none focus:border-[var(--accent-neon)] focus:ring-1 focus:ring-[var(--accent-neon)] transition-all min-h-[44px]"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block text-xs font-mono uppercase tracking-wider text-[var(--text-secondary)] mb-2 font-medium"
-                      >
-                        Email Address <span className="text-[var(--accent-neon)]">*</span>
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        required
-                        value={formData.email}
-                        onChange={(e) => {
-                          if (errorMessage) setErrorMessage(null)
-                          setFormData({ ...formData, email: e.target.value })
-                        }}
-                        placeholder="ada@example.com"
-                        className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] text-sm focus:outline-none focus:border-[var(--accent-neon)] focus:ring-1 focus:ring-[var(--accent-neon)] transition-all min-h-[44px]"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="message"
-                        className="block text-xs font-mono uppercase tracking-wider text-[var(--text-secondary)] mb-2 font-medium"
-                      >
-                        Project Details / Message <span className="text-[var(--accent-neon)]">*</span>
-                      </label>
-                      <textarea
-                        id="message"
-                        required
-                        rows={4}
-                        value={formData.message}
-                        onChange={(e) => {
-                          if (errorMessage) setErrorMessage(null)
-                          setFormData({ ...formData, message: e.target.value })
-                        }}
-                        placeholder="Tell me about your project, engineering role, or collaboration idea..."
-                        className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] text-sm focus:outline-none focus:border-[var(--accent-neon)] focus:ring-1 focus:ring-[var(--accent-neon)] transition-all resize-none min-h-[120px]"
-                      />
-                    </div>
-
-                    {errorMessage && (
-                      <div className="p-3.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-start gap-2.5">
-                        <WarningCircle size={18} className="shrink-0 mt-0.5" />
-                        <span className="leading-relaxed">{errorMessage}</span>
-                      </div>
-                    )}
-
-                    <GlowButton
-                      type="submit"
-                      variant="solid"
-                      size="lg"
-                      className="w-full"
-                      disabled={isSubmitting}
-                      icon={
-                        isSubmitting ? (
-                          <CircleNotch size={18} className="animate-spin" />
-                        ) : (
-                          <PaperPlaneTilt size={18} weight="bold" />
-                        )
-                      }
+                  <h3 className="font-display text-xl font-bold text-[var(--text-primary)]">
+                    Message sent
+                  </h3>
+                  <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto leading-relaxed">
+                    Thanks for reaching out, {submittedName}. I received your message and will reply soon.
+                  </p>
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSubmitted(false)
+                        setErrorMessage(null)
+                      }}
+                      className="text-xs font-semibold text-[var(--accent)] hover:underline cursor-pointer min-h-[40px] px-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] rounded-md"
                     >
-                      {isSubmitting ? 'Transmitting...' : 'Send Message'}
-                    </GlowButton>
-                  </form>
-                )}
+                      Send another message
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="contact-name"
+                      className="text-sm font-medium text-[var(--text-primary)]"
+                    >
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      id="contact-name"
+                      name="name"
+                      autoComplete="name"
+                      required
+                      value={formData.name}
+                      onChange={(e) => {
+                        if (errorMessage) setErrorMessage(null)
+                        setFormData({ ...formData, name: e.target.value })
+                      }}
+                      placeholder="Alex Rivera"
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-primary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] text-sm focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-colors min-h-[44px]"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="contact-email"
+                      className="text-sm font-medium text-[var(--text-primary)]"
+                    >
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="contact-email"
+                      name="email"
+                      autoComplete="email"
+                      required
+                      value={formData.email}
+                      onChange={(e) => {
+                        if (errorMessage) setErrorMessage(null)
+                        setFormData({ ...formData, email: e.target.value })
+                      }}
+                      placeholder="alex@company.com"
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-primary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] text-sm focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-colors min-h-[44px]"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="contact-message"
+                      className="text-sm font-medium text-[var(--text-primary)]"
+                    >
+                      Message
+                    </label>
+                    <textarea
+                      id="contact-message"
+                      name="message"
+                      required
+                      rows={5}
+                      value={formData.message}
+                      onChange={(e) => {
+                        if (errorMessage) setErrorMessage(null)
+                        setFormData({ ...formData, message: e.target.value })
+                      }}
+                      placeholder="Share details about the role, team, or project."
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-primary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] text-sm focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-colors resize-y min-h-[128px]"
+                    />
+                  </div>
+
+                  {errorMessage && (
+                    <div
+                      role="alert"
+                      className="p-3.5 rounded-lg border text-xs flex items-start gap-2.5 leading-relaxed"
+                      style={{
+                        backgroundColor: 'var(--alert-error-bg)',
+                        borderColor: 'var(--alert-error-border)',
+                        color: 'var(--alert-error-text)',
+                      }}
+                    >
+                      <WarningCircle size={18} className="shrink-0 mt-0.5" aria-hidden="true" />
+                      <span>{errorMessage}</span>
+                    </div>
+                  )}
+
+                  <GlowButton
+                    type="submit"
+                    variant="solid"
+                    size="lg"
+                    className="w-full"
+                    disabled={isSubmitting}
+                    icon={
+                      isSubmitting ? (
+                        <CircleNotch size={18} className="animate-spin" />
+                      ) : (
+                        <PaperPlaneTilt size={18} weight="bold" />
+                      )
+                    }
+                  >
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
+                  </GlowButton>
+                </form>
+              )}
               </div>
-            </RevealOnScroll>
+            </SpotlightCard>
           </div>
 
-          {/* Right Column: Direct Info & Social Grid */}
-          <div className="lg:col-span-5 space-y-6">
-            {/* Quick Email Card with Copy button */}
-            <RevealOnScroll delay={0.2}>
-              <div className="p-6 rounded-2xl glass-card border border-[var(--border-primary)] space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-lg bg-[var(--accent-neon-glow)] text-[var(--accent-neon)]">
-                    <EnvelopeSimple size={24} weight="bold" />
-                  </div>
-                  <div>
-                    <span className="text-xs font-mono text-[var(--text-tertiary)] uppercase tracking-wider">
-                      Direct Inquiries
-                    </span>
-                    <h4 className="text-base font-bold text-[var(--text-primary)]">
-                      {emailAddress}
-                    </h4>
-                  </div>
-                </div>
+          {/* Right: Direct Email & Profiles (hairline structured, no duplicate Resume card) */}
+          <div className="lg:col-span-5 space-y-8">
+            <div className="border-t border-[var(--border-primary)] pt-5 space-y-4">
+              <div className="flex items-center gap-2.5 text-sm font-semibold text-[var(--text-primary)]">
+                <EnvelopeSimple size={18} className="text-[var(--accent)]" aria-hidden="true" />
+                <span>Direct Email</span>
+              </div>
 
-                <div className="flex items-center gap-2 pt-2">
-                  <button
-                    onClick={handleCopyEmail}
-                    className="flex-1 px-4 py-2 rounded-lg border border-[var(--border-primary)] bg-[var(--bg-tertiary)] text-xs font-mono font-medium text-[var(--text-primary)] hover:border-[var(--accent-neon)] transition-colors flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer"
-                  >
-                    {copiedEmail ? (
-                      <>
-                        <CheckCircle size={16} className="text-[var(--accent-neon)]" />
-                        <span>Copied to Clipboard!</span>
-                      </>
+              <p className="font-mono text-sm text-[var(--text-primary)] break-all">
+                {EMAIL_ADDRESS}
+              </p>
+
+              <div className="flex flex-wrap items-center gap-2.5">
+                <GlowButton
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleCopy('email', EMAIL_ADDRESS)}
+                  icon={
+                    copiedKey === 'email' ? (
+                      <Check size={15} weight="bold" className="text-[var(--accent)]" />
                     ) : (
-                      <>
-                        <Copy size={16} />
-                        <span>Copy Email</span>
-                      </>
-                    )}
-                  </button>
-
-                  <a
-                    href={`mailto:${emailAddress}`}
-                    className="px-4 py-2 rounded-lg bg-[var(--accent-neon)] text-[#0a0a0a] text-xs font-mono font-bold hover:bg-[var(--accent-neon-hover)] transition-colors flex items-center justify-center min-h-[44px]"
-                  >
-                    Open Mailer
-                  </a>
-                </div>
-              </div>
-            </RevealOnScroll>
-
-            {/* Resume / CV Card */}
-            <RevealOnScroll delay={0.3}>
-              <div className="p-6 rounded-2xl glass-card border border-[var(--border-primary)] flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-lg bg-[var(--bg-tertiary)] text-[var(--accent-neon)] border border-[var(--border-primary)]">
-                    <FileText size={24} weight="bold" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-[var(--text-primary)]">
-                      Resume / CV
-                    </h4>
-                    <p className="text-xs text-[var(--text-secondary)]">
-                      Updated for 2026 engineering positions
-                    </p>
-                  </div>
-                </div>
-
-                <a
-                  href="/resume.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-lg border border-[var(--accent-neon)] text-[var(--accent-neon)] hover:bg-[var(--accent-neon)] hover:text-[#0a0a0a] text-xs font-mono font-semibold transition-all min-h-[44px] flex items-center shrink-0"
+                      <Copy size={15} />
+                    )
+                  }
                 >
-                  View CV
-                </a>
-              </div>
-            </RevealOnScroll>
+                  {copiedKey === 'email' ? 'Copied' : 'Copy Email'}
+                </GlowButton>
 
-            {/* Social Channels Grid */}
-            <RevealOnScroll delay={0.4}>
-              <div className="p-6 rounded-2xl glass-card border border-[var(--border-primary)]">
-                <h4 className="text-xs font-mono uppercase tracking-wider text-[var(--text-tertiary)] mb-4">
-                  Developer Profiles &amp; Socials
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {socials.map((social) => (
+                <GlowButton
+                  variant="ghost"
+                  size="sm"
+                  href={`mailto:${EMAIL_ADDRESS}`}
+                  icon={<ArrowUpRight size={15} weight="bold" />}
+                >
+                  Open Mail Client
+                </GlowButton>
+              </div>
+            </div>
+
+            <div className="border-t border-[var(--border-primary)] pt-5">
+              <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+                Profiles
+              </h3>
+              <ul className="divide-y divide-[var(--border-primary)] border-y border-[var(--border-primary)]">
+                {externalProfiles.map((profile) => (
+                  <li key={profile.name}>
                     <a
-                      key={social.name}
-                      href={social.href}
+                      href={profile.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-3 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-primary)] hover:border-[var(--accent-neon)]/60 text-[var(--text-primary)] hover:text-[var(--accent-neon)] transition-all flex items-center gap-3 min-h-[44px] group"
+                      className="py-3 flex items-center justify-between gap-3 text-sm text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] rounded-sm group"
                     >
-                      <span className="text-[var(--text-secondary)] group-hover:text-[var(--accent-neon)] transition-colors">
-                        {social.icon}
+                      <span className="inline-flex items-center gap-3 min-w-0">
+                        <span className="text-[var(--text-secondary)] group-hover:text-[var(--accent)] transition-colors">
+                          {profile.icon}
+                        </span>
+                        <span className="font-medium">{profile.name}</span>
                       </span>
-                      <div className="overflow-hidden">
-                        <span className="block text-xs font-bold truncate">
-                          {social.name}
-                        </span>
-                        <span className="block text-[11px] font-mono text-[var(--text-tertiary)] truncate">
-                          {social.handle}
-                        </span>
-                      </div>
+                      <span className="inline-flex items-center gap-1.5 text-xs font-mono text-[var(--text-tertiary)] group-hover:text-[var(--accent)] truncate">
+                        <span className="truncate">{profile.handle}</span>
+                        <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+                      </span>
                     </a>
-                  ))}
-                </div>
-              </div>
-            </RevealOnScroll>
+                  </li>
+                ))}
+
+                {/* Discord handle copy action (honest instead of a generic discord.com link) */}
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy('discord', DISCORD_HANDLE)}
+                    className="w-full py-3 flex items-center justify-between gap-3 text-sm text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors min-h-[44px] cursor-pointer text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] rounded-sm group"
+                  >
+                    <span className="inline-flex items-center gap-3">
+                      <span className="text-[var(--text-secondary)] group-hover:text-[var(--accent)] transition-colors">
+                        <DiscordLogo size={19} aria-hidden="true" />
+                      </span>
+                      <span className="font-medium">Discord</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-mono text-[var(--text-tertiary)] group-hover:text-[var(--accent)]">
+                      {copiedKey === 'discord' ? (
+                        <>
+                          <Check size={14} weight="bold" className="text-[var(--accent)]" aria-hidden="true" />
+                          <span>Copied ({DISCORD_HANDLE})</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>{DISCORD_HANDLE}</span>
+                          <Copy size={14} aria-hidden="true" />
+                        </>
+                      )}
+                    </span>
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
