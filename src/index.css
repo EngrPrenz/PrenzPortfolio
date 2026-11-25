@@ -12,6 +12,7 @@
 
 :root {
   color-scheme: light dark;
+  interpolate-size: allow-keywords;
 
   --bg-primary: #080a09;
   --bg-secondary: #101412;
@@ -475,4 +476,34 @@ dialog.lightbox-dialog[open]:where(:not([data-closing]))::backdrop {
 .hobby-carousel-slide {
   flex: 0 0 100%;
   scroll-snap-align: center;
+}
+
+/* Progressive-enhancement intrinsic-size disclosure for "Additional Systems & Labs" */
+.archive-disclosure {
+  block-size: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    block-size 0.36s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.28s ease-out;
+}
+
+.archive-disclosure.is-expanded {
+  block-size: auto;
+  opacity: 1;
+
+  @starting-style {
+    block-size: 0;
+    opacity: 0;
+  }
+}
+
+.archive-disclosure[data-instant-reveal] {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-disclosure {
+    transition: none !important;
+  }
 }

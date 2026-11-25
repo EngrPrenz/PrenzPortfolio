@@ -1,9 +1,11 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { CaretDown } from '@phosphor-icons/react'
 import { motion, useReducedMotion } from 'motion/react'
 import { ProjectCategory, Project } from '@/data/projects'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { ProjectCard } from '@/components/ui/ProjectCard'
 import { ProjectModal } from '@/components/ui/ProjectModal'
+import { GlowButton } from '@/components/ui/GlowButton'
 import { useProjects } from '@/hooks/useProjects'
 
 interface ProjectsGalleryProps {
@@ -12,10 +14,26 @@ interface ProjectsGalleryProps {
 
 const CATEGORIES: ProjectCategory[] = ['All', 'Full Stack', 'QA & Testing', 'AR & Systems']
 const FLAGSHIP_PRIORITY = ['vexlo', 'salo-sa-antipolo', 'ursac-hub']
+const MAX_INITIAL_ARCHIVE_PROJECTS = 2
+
+const supportsUntilFound =
+  typeof HTMLElement !== 'undefined' && 'onbeforematch' in HTMLElement.prototype
+
+const setDisclosureHidden = (el: HTMLElement) => {
+  if (supportsUntilFound) {
+    el.setAttribute('hidden', 'until-found')
+  } else {
+    el.hidden = true
+  }
+}
 
 export const ProjectsGallery: React.FC<ProjectsGalleryProps> = ({ onSelectProject }) => {
   const [activeFilter, setActiveFilter] = useState<ProjectCategory>('All')
   const [localSelectedProject, setLocalSelectedProject] = useState<Project | null>(null)
+  const [showAllArchive, setShowAllArchive] = useState(false)
+  const extraArchiveId = useId()
+  const extraArchiveRef = useRef<HTMLDivElement>(null)
+  const wasArchiveExpandedRef = useRef(false)
   const shouldReduceMotion = useReducedMotion()
   const { projects } = useProjects()
 
@@ -60,6 +78,79 @@ export const ProjectsGallery: React.FC<ProjectsGalleryProps> = ({ onSelectProjec
   const leadSpotlight = featuredProjects[0]
   const secondaryFeatured = featuredProjects.slice(1)
 
+  const visibleArchiveProjects = archiveProjects.slice(0, MAX_INITIAL_ARCHIVE_PROJECTS)
+  const extraArchiveProjects = archiveProjects.slice(MAX_INITIAL_ARCHIVE_PROJECTS)
+  const hasMoreArchiveProjects = extraArchiveProjects.length > 0
+
+  useLayoutEffect(() => {
+    const el = extraArchiveRef.current
+    if (!el) {
+      wasArchiveExpandedRef.current = false
+      return
+    }
+
+    const wasExpanded = wasArchiveExpandedRef.current
+    wasArchiveExpandedRef.current = showAllArchive
+
+    if (showAllArchive) {
+      el.inert = false
+      el.removeAttribute('hidden')
+      return
+    }
+
+    if (!wasExpanded) {
+      el.inert = false
+      setDisclosureHidden(el)
+      return
+    }
+
+    const transitions =
+      typeof el.getAnimations === 'function' && typeof CSSTransition !== 'undefined'
+        ? el.getAnimations().filter((anim) => anim instanceof CSSTransition)
+        : []
+
+    if (transitions.length === 0) {
+      el.inert = false
+      setDisclosureHidden(el)
+      return
+    }
+
+    let cancelled = false
+    el.inert = true
+
+    Promise.allSettled(transitions.map((t) => t.finished)).then(() => {
+      if (cancelled) return
+      el.inert = false
+      setDisclosureHidden(el)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [showAllArchive, hasMoreArchiveProjects, activeFilter])
+
+  useEffect(() => {
+    const el = extraArchiveRef.current
+    if (!el) return
+
+    const handleBeforeMatch = () => {
+      el.dataset.instantReveal = 'true'
+      setShowAllArchive(true)
+    }
+
+    el.addEventListener('beforematch', handleBeforeMatch)
+    return () => {
+      el.removeEventListener('beforematch', handleBeforeMatch)
+    }
+  }, [hasMoreArchiveProjects, activeFilter])
+
+  const handleToggleArchive = () => {
+    if (extraArchiveRef.current) {
+      delete extraArchiveRef.current.dataset.instantReveal
+    }
+    setShowAllArchive((prev) => !prev)
+  }
+
   return (
     <section
       id="projects"
@@ -91,11 +182,10 @@ export const ProjectsGallery: React.FC<ProjectsGalleryProps> = ({ onSelectProjec
                   role="tab"
                   aria-selected={isActive}
                   onClick={() => setActiveFilter(category)}
-                  className={`relative px-3.5 py-2 rounded-md text-xs font-medium transition-colors cursor-pointer min-h-[38px] whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${
-                    isActive
-                      ? 'text-[var(--accent-ink)] font-semibold'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                  }`}
+                  className={`relative px-3.5 py-2 rounded-md text-xs font-medium transition-colors cursor-pointer min-h-[38px] whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${isActive
+                    ? 'text-[var(--accent-ink)] font-semibold'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    }`}
                 >
                   {isActive &&
                     (shouldReduceMotion ? (
@@ -144,18 +234,19 @@ export const ProjectsGallery: React.FC<ProjectsGalleryProps> = ({ onSelectProjec
 
             {archiveProjects.length > 0 && (
               <div className="pt-8 border-t border-[var(--border-primary)]">
-                <div className="flex items-baseline justify-between gap-4 mb-6">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-6">
                   <h3 className="font-display text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
                     Additional Systems &amp; Labs
                   </h3>
                   <span className="text-xs font-mono text-[var(--text-tertiary)] tabular-nums">
-                    {archiveProjects.length}{' '}
-                    {archiveProjects.length === 1 ? 'project' : 'projects'}
+                    {hasMoreArchiveProjects && !showAllArchive
+                      ? `${visibleArchiveProjects.length} of ${archiveProjects.length} projects`
+                      : `${archiveProjects.length} ${archiveProjects.length === 1 ? 'project' : 'projects'}`}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {archiveProjects.map((project) => (
+                  {visibleArchiveProjects.map((project) => (
                     <ProjectCard
                       key={project.id}
                       project={project}
@@ -164,6 +255,49 @@ export const ProjectsGallery: React.FC<ProjectsGalleryProps> = ({ onSelectProjec
                     />
                   ))}
                 </div>
+
+                {hasMoreArchiveProjects && (
+                  <>
+                    <div
+                      id={extraArchiveId}
+                      ref={extraArchiveRef}
+                      className={`archive-disclosure${showAllArchive ? ' is-expanded' : ''}`}
+                    >
+                      <div className="pt-6 pb-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {extraArchiveProjects.map((project) => (
+                          <ProjectCard
+                            key={project.id}
+                            project={project}
+                            variant="standard"
+                            onSelect={handleSelect}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className={`flex justify-center ${showAllArchive ? 'mt-3' : 'mt-8'}`}>
+                      <GlowButton
+                        variant="outline"
+                        size="md"
+                        onClick={handleToggleArchive}
+                        aria-expanded={showAllArchive}
+                        aria-controls={extraArchiveId}
+                        icon={
+                          <CaretDown
+                            size={16}
+                            weight="bold"
+                            className={`transition-transform duration-200 motion-reduce:transition-none ${showAllArchive ? 'rotate-180' : ''
+                              }`}
+                          />
+                        }
+                      >
+                        {showAllArchive
+                          ? 'Show Less'
+                          : `See More (${extraArchiveProjects.length})`}
+                      </GlowButton>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
